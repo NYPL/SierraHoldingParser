@@ -28,19 +28,19 @@ describe RecordManager do
             }
 
             $location_client.stubs(:lookup_code).once.returns({
-                :code => 'tst', :label => 'test location'
+                'code' => 'tst', 'label' => 'test location'
             })
 
             @test_manager.send(:_parse_location)
 
-            expect(@test_manager.instance_variable_get(:@record)['location'][:label]).to eq('test location')
+            expect(@test_manager.instance_variable_get(:@record)['location']['label']).to eq('test location')
         end
     end
 
     describe '#_parse_holdings' do
         it 'should set a holdings hash' do
             @test_manager.send(:_parse_holdings)
-            expect(@test_manager.instance_variable_get(:@record)['holdings']).to eq({})
+            expect(@test_manager.instance_variable_get(:@record)['holdings']).to eq([])
         end
     end
 end
