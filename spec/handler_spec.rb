@@ -5,6 +5,8 @@ require_relative './spec_helper'
 describe 'handler' do
     describe '#init' do
         before(:each) {
+            $initialized = false
+
             @kms_mock = mock()
             @kms_mock.stubs(:decrypt)
             NYPLRubyUtil::KmsClient.stubs(:new).returns(@kms_mock)
@@ -27,6 +29,7 @@ describe 'handler' do
             expect($avro_client).to eq(@avro_mock)
             expect($kinesis_client).to eq(@kinesis_mock)
             expect($location_client).to eq(@locations_mock)
+            expect($initialized).to eq(true)
         end
      end
 
