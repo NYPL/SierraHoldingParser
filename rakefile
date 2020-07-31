@@ -1,0 +1,16 @@
+# Basic utility commands to make working with SAM and AWS Lambda more friendly 
+
+desc "Run test suite"
+task :test do
+    sh %{ rspec }
+end
+
+desc "Run function locally. Accepts the name of the resource from the SAM config to select which function to invoke"
+task :run_local, [:event_file] do |t, args|
+    sh %{ sam local invoke -t sam.local.yml -e #{args[:event_file]}}
+end
+
+desc "Run bundler for local development and deployment"
+task :run_bundler do
+    sh %{ bundle config unset deployment; bundle install; bundle config set deployment 'true'; bundle install }
+end

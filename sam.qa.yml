@@ -1,0 +1,33 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: 'Function for parsing incoming holding records'
+
+Globals:
+    Function:
+      Timeout: 30
+      Runtime: ruby2.7
+      Handler: app.handle_event
+      Environment:
+        Variables:
+          LOG_LEVEL: debug
+          AWS_REGION: us-east-1
+
+Resources:
+  SierraHoldingParser-qa:
+    Type: AWS::Serverless::Function
+    Properties:
+      Events:
+        Stream:
+          Type: Kinesis
+          Properties:
+            Stream: arn:aws:kinesis:us-east-1:946183545209:stream/SierraHoldingParser-qa
+            BatchSize: 10
+            StartingPosition: LATEST
+            MaximumRetryAttempts: 3
+            BisectBatchOnFunctionError: Tru
+      Environment:
+        Variables:
+            KINESIS_STREAM: HoldingPostRequest
+            RECORD_TYPE: holdings
+            PLATFORM_API_BASE_URL: https://qa-platform.nypl.org/api/v0.1/
+            LOCATIONS_JSONLD_URL: https://s3.amazonaws.com/nypl-core-objects-mapping-production/by_sierra_location.json
