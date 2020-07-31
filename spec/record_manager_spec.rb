@@ -3,12 +3,12 @@ require_relative './handler_spec'
 
 describe RecordManager do
     before(:each) {
-        @test_manager = RecordManager.new { 'id' => 1 }
+        @test_manager = RecordManager.new({ 'id' => 1 })
     }
 
     describe '#initialize' do
         it 'should set the initialized record as a variable' do
-            expect(test_manager.instance_variable_get(:record)['id']).to eq(1)
+            expect(@test_manager.instance_variable_get(:@record)['id']).to eq(1)
         end
     end
 
@@ -23,7 +23,7 @@ describe RecordManager do
 
     describe '#_parse_location' do
         it 'should set a location object to the current record' do
-            @test_manager.instance_variable_get(:record)['fixedFields'] = {
+            @test_manager.instance_variable_get(:@record)['fixedFields'] = {
                 '40' => { 'value' => 'tst' }
             }
 
@@ -33,14 +33,14 @@ describe RecordManager do
 
             @test_manager.send(:_parse_location)
 
-            expect(@test_manager.instance_variable_get(:record)['location']['label']).to eq('test location')
+            expect(@test_manager.instance_variable_get(:@record)['location'][:label]).to eq('test location')
         end
     end
 
     describe '#_parse_holdings' do
         it 'should set a holdings hash' do
             @test_manager.send(:_parse_holdings)
-            expect(@test_manager.instance_variable_get(:record)['holdings']).to eq({})
+            expect(@test_manager.instance_variable_get(:@record)['holdings']).to eq({})
         end
     end
 end

@@ -1,0 +1,59 @@
+language: ruby
+rvm:
+- 2.7
+before_install:
+- gem update --system
+- gem install bundler
+install:
+- rake run_bundler
+script:
+- rake test
+deploy:
+- provider: lambda
+  function_name: SierraHoldingParser-dev
+  description: A function that parses holding records from the Sierra API
+  region: us-east-1
+  role: arn:aws:iam::224280085904:role/lambda_basic_execution
+  runtime: ruby2.7
+  timeout: 60
+  module_name: app
+  handler_name: handle_event
+  environment_variables:
+  - LOG_LEVEL=debug
+  - PLATFORM_API_BASE_URL=https://dev-platform.nypl.org/api/v0.1
+  - SCHEMA_TYPE=Holding
+  - KINESIS_STREAM=HoldingPostRequest-dev
+  - LOCATIONS_JSONLD_URL=https://s3.amazonaws.com/nypl-core-objects-mapping-production/by_sierra_location.json
+  access_key_id: "$AWS_ACCESS_KEY_ID_DEV"
+  secret_access_key: "$AWS_SECRET_ACCESS_KEY_DEV"
+  on:
+    branch: development
+  notifications:
+    email:
+      on_failure: always
+- provider: lambda
+  function_name: SierraHoldingParser-qa
+  description: A function that parses holding records from the Sierra API
+  region: us-east-1
+  role: arn:aws:iam::946183545209:role/lambda-full-access
+  runtime: ruby2.7
+  timeout: 60
+  module_name: app
+  handler_name: handle_event
+  environment_variables:
+  - LOG_LEVEL=debug
+  - PLATFORM_API_BASE_URL=https://qa-platform.nypl.org/api/v0.1
+  - SCHEMA_TYPE=Holding
+  - KINESIS_STREAM=HoldingPostRequest-qa
+  - LOCATIONS_JSONLD_URL=https://s3.amazonaws.com/nypl-core-objects-mapping-production/by_sierra_location.json
+  access_key_id: "$AWS_ACCESS_KEY_ID_QA"
+  secret_access_key: "$AWS_SECRET_ACCESS_KEY_QA"
+  on:
+    branch: qa
+env:
+  global:
+  - AWS_DEFAULT_REGION=us-east-1
+  - secure: ZkvdYoIHBlONGawPkQl2flqdioiGXVelDzmPbhSANJlf4rfwN4LFdMXzdCIptSldFONDdc+hMkbH0dSL28P27/Whtnc0SPrvImHuwYYeZg1oNpY80Ft/+6R7kVsv2b3Wx34DLzzvw/uvtUF8DdvNtmrmC+cK3RmDahYeIAouPWqRghlBYonAelrrjaAlocyj513snS4/3SELjjsocayXbVa9rWI7uwpywxBwJKb5+Zqfno34MlJ2bM9G/znyWQ4insVJxmencsw5jZ57LJLZ85QzC0MXHYLW9NDOEhR5vbGDzu0RXx1J5i3IpUh70VQP6WMhrzhCjpFZwzx6JOKAXTOFRZLVkRQIgSmw9XwsxeLhNxCpLz5WVNptIa9FZYQjqCkY8qMb8WR5aYLeLNughjnHRuOW7meDrg/XzA0TeMBQNZuAEfBqSLt7JDVgRiGI3NopLWcWnWl+a0CmzispF4Op1o08ysbq+FAJXQjujkbYMJvmxLWRnCVFnu9cTrZku8J+HPofWRSS2xpr+fl5Y/mXwkiJ0VviHD4rxdZk99Faao+oZqSOn8DuD6JaSxCZNz6uKTKKXXXX3MV9R8EsdaX2HIQc3hSxB9qyC7iG1TdhWGgS1QJ7Be9Y2r2FQrLsub/rfIiIABZCp+A3R15OcRX1V+bPU7N6Y4x75u5aMRY=
+  - secure: KhRJv8AdGr9/WVF2mOr7pGSFImJAuneqcRIe5JXtmTw6AheXgXE9NRA2rzDYQCDbvcGwS43kHLpXcLz7TGIx2xhaGwL9dlb6mB6PghBRua8ebr4FjLZPjfRNpUcQfh41eSOdlk1f6cdL+8mAnDET/Cucvu1CDKUpHnSYo61dGPpECiSBRwfWarnE7GK/L/mxHuXCAEGJAxbH/avSoWhvvQ4p0BYN7sKeL8fhcsjVK7OUpdDgkDVQCvP5k/H1v18i7I7ahaGnUXl6gfR9wZd/ftO0ajN+ZJxKyfKJqTFzI5TFpixpmgsCiUSbAeVAcVCk/unoOQZropBZ+DCrTws0OeawpFJQoFOsV5S/HuPrFXjFp/OHWWvRMGQOucq3Ekr9vaUPqRggiRLi7yvAJLcrxhPHwg7UgjbWMVu/NLrcxJqwD/URAdT0w1Sr+LO+UKSrO2CVCQqeqWlt9C2V0++xhpbpb7YZlJBXjMY2ttxlE9sii2Biu77VRc2PD4f8n0vVgilw1b3siPEpc1uvH0Qu91ewvMhP00hKglmI92/1yc0Wp4reveLqryHiQGG2l1UbCmvRCc8kf4OfV2ybgpxQ9KGAfmAk9THBAeY1RpChSNSS1cIJP8xJD8UbKHCz0F0Kbz86blERbJhpOwYR1geFcV90fGFLqzHe0SRo3SLTCgw=
+  - secure: JflsWLPZH8rQJK/X1y+TgnFRIJzX6Fl1ca8Li0M5laCkme6Pv3ZRtEL/B/Iwa9EQ4IkOJMIcWYgfFPwqPDMvdX1Deqay0JK9kYLXveM8rQjsYhg3Y92NhaI8jOP9AnYaCP7q0BPiNGS55/uYvn1V3Skvzmm60G1kAbHlLTodZhQWW4R/shwNVHumK/MW5qIDhlzAm69gfVNlq3a6v4K7aNGTroos7W3W9khDwON02wklb4/wc3oWzNLU53LERoHqhWSy8EH/6PlYEElbaHmWT0+wFgbhtYTq5fi4hVryNG2aTko+oSXd9yq0jY+1XFp/Sc1EcGvQ/lptLrsfB650UhJtDUYhjTrK9EQajhpuJ2ygbxCGkGpo+eT2VSzeE6TDszgAtA/FFoGg4vcS6Bbnvh/3sbdU9fNH7hbnDAQ/brXJkq139yab/IiP1uDozo4r1bfMyn63t5RAXJEd691/UWaTDgp+Vsrh1MHNTTKeBgGj3O2rTyDplHxcEawu/X2isulnItW1JY8K1qMEyiNzaVj0uSeqKbjFOiC6TqZbsdmvOjdquuCUsGRlTjuG2SRn38JD8sdES9AL5kUnhHmjx4f0T1fLSilMEKt5areHZYVr6iA6UnD5P+D8hx7Rcf4uZHUKJJCs90cguFmCQHlN2KwG5oPCj3lp3+Dk6vpyU3Y=
+  - secure: HvY9Cn9tCFxxKMEgY6fsdN5vSSAC6uvCzxh7q17Ib7kJuETItjhSkRYtey+nfVU/xpQhe6g2WsL2lmmADzjwF1D5r5E/94auno66DRFHsRepqRTP2m6z385rXOU3hrcRQWyRTo5ubbrkF8vgOxUP1bnrLZOaeOxGl9qz/F+AdjswK9i/e4+CNu2a9MUBgOPD65xRTavCvoy9f9ut9J7s0s1zdmd41qVaUVZWtolGgxptw48PNzZOtiZ6f8kllNI1GyF2XD4mEAAJXEXCuJtpcheEte4mWPXpXYj3QAN9cLds23/Oj5RmI6pEwsmougKKAx90LVHH1k9ewIYS0+Dl88tumwVNczFrDclgm7AWnRjdnAhV0A5t1ITVbH6s+LyfsyeN5vxCR3VRBeQj/2JSowdL94UilFnchRy8goTnPGpRUUub9r9rb+YxULZlkfakyKDGwpHVQ8kY2EioxKZ+c4oKiXnWzP/NyqF1NYF+Du1Et6Y/jPysqVpx3I60M674ENwkEFZKdBPVNPxbPYjxw3OWX6LgKw6UkfeM1AIwIYS0ExUmDZxizPKxL8r/G772ZUZXKKRdw2vX3T1j0dTCzPhRAXxaWRJcbfbUBACSI/IZzdYx1dsK5Pf0twZad4g8njEIeEDl3u69Eb9yUsiI5mL6dnWSbEAzTTyj6Rs0O8k=
