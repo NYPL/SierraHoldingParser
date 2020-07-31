@@ -10,7 +10,7 @@ class LocationClient
     def lookup_code code
         code_record = @locations[code.strip]
         
-        { :code => code_record['code'], :label => code_record['label'] }
+        { 'code' => code_record['code'], 'label' => code_record['label'] }
     end
 
     private

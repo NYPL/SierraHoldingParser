@@ -26,7 +26,8 @@ describe 'handler' do
             init
 
             expect($kms_client).to eq(@kms_mock)
-            expect($avro_client).to eq(@avro_mock)
+            expect($in_avro_client).to eq(@avro_mock)
+            expect($out_avro_client).to eq(@avro_mock)
             expect($kinesis_client).to eq(@kinesis_mock)
             expect($location_client).to eq(@locations_mock)
             expect($initialized).to eq(true)
@@ -79,7 +80,7 @@ describe 'handler' do
     describe '#validate_record' do
         before(:each) {
             @mock_avro = mock()
-            $avro_client = @mock_avro
+            $in_avro_client = @mock_avro
         }
 
         it "should return a decoded record" do
@@ -105,7 +106,7 @@ describe 'handler' do
     describe '#send_record_to_stream' do
         before(:each) {
             @mock_avro = mock()
-            $avro_client = @mock_avro
+            $out_avro_client = @mock_avro
             @mock_kinesis = mock()
             $kinesis_client = @mock_kinesis
             
