@@ -38,7 +38,7 @@ describe RecordManager do
     end
 
     describe '#_parse_holdings' do
-        it 'should set a holdings hash' do
+        it 'should set a holdings array' do
             @test_manager.send(:_parse_holdings)
             expect(@test_manager.instance_variable_get(:@record)['holdings']).to eq([])
         end
