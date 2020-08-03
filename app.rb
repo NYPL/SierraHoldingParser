@@ -72,7 +72,7 @@ end
 
 def send_record_to_stream record
     begin
-        encoded_record = $out_avro_client.encode record
+        encoded_record = $out_avro_client.encode(record, base64=false)
         $logger.info "Encoded record id# #{record['id']}"
     rescue AvroError => e
         $logger.warn "Record (id# #{record['id']} failed avro validation", { :status => e.message }

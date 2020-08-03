@@ -114,7 +114,7 @@ describe 'handler' do
         }
 
         it "should encode and send record when successful" do
-            @mock_avro.stubs(:encode).once.with(@test_record).returns(@test_record)
+            @mock_avro.stubs(:encode).once.with(@test_record, base64=false).returns(@test_record)
             @mock_kinesis.stubs(:<<).once.with(@test_record)
 
             send_record_to_stream(@test_record)
@@ -128,7 +128,7 @@ describe 'handler' do
         end
 
         it "should raise an error if unable to send record to kinesis" do
-            @mock_avro.stubs(:encode).once.with(@test_record).returns(@test_record)
+            @mock_avro.stubs(:encode).once.with(@test_record, base64=false).returns(@test_record)
             @mock_kinesis.stubs(:<<).once.raises(NYPLError.new('test'))
 
             expect { self.send(:send_record_to_stream, @test_record) }.to raise_error(HoldingParserError, "Failed to send encoded record to Kinesis stream")
