@@ -8,9 +8,13 @@ class LocationClient
     end
 
     def lookup_code code
-        code_record = @locations[code.strip]
+        location = nil
+        unless code.strip == 'none'
+            code_record = @locations[code.strip]
+            location = { 'code' => code_record['code'], 'label' => code_record['label'] }
+        end
         
-        { 'code' => code_record['code'], 'label' => code_record['label'] }
+        location 
     end
 
     private

@@ -38,4 +38,28 @@ describe LocationClient do
             expect { LocationClient.send(:new) }.to raise_error(NYPLLocationError, "NYPL location fetch returned 500")
         end
     end
+
+    describe '#lookup_code' do
+        before(:each) {
+            mock_resp = mock()
+            mock_resp.stubs(:code).returns('200')
+            mock_resp.stubs(:body).returns(JSON.dump({
+                :tst => { :code => 'tst', :label => 'test location' }
+            }))
+            Net::HTTP.stubs(:get_response).once.returns(mock_resp)
+            @test_client = LocationClient.new
+        }
+
+        it 'should return a location object if code is found' do
+            out_object = @test_client.lookup_code 'tst'
+
+            expect(out_object['label']).to eq('test location')
+        end
+
+        it 'should return nil if the location code is none' do
+            out_object = @test_client.lookup_code 'none '
+
+            expect(out_object).to eq(nil)
+        end
+    end
 end
