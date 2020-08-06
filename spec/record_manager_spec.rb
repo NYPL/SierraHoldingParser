@@ -35,6 +35,18 @@ describe RecordManager do
 
             expect(@test_manager.instance_variable_get(:@record)['location']['label']).to eq('test location')
         end
+
+        it 'should return nil if no location object could be located' do
+            @test_manager.instance_variable_get(:@record)['fixedFields'] = {
+                '40' => { 'value' => 'none' }
+            }
+
+            $location_client.stubs(:lookup_code).once.returns(nil)
+
+            @test_manager.send(:_parse_location)
+
+            expect(@test_manager.instance_variable_get(:@record)['location']).to be_nil
+        end
     end
 
     describe '#_parse_holdings' do
