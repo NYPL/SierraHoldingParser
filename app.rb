@@ -9,8 +9,11 @@ def init
     $logger = NYPLRubyUtil::NyplLogFormatter.new(STDOUT, level: ENV['LOG_LEVEL'])
     $kms_client = NYPLRubyUtil::KmsClient.new
     $in_avro_client = NYPLRubyUtil::NYPLAvro.by_name(ENV['IN_SCHEMA_TYPE'])
-    $out_avro_client = NYPLRubyUtil::NYPLAvro.by_name(ENV['OUT_SCHEMA_TYPE'])
-    $kinesis_client = NYPLRubyUtil::KinesisClient.new({ :stream_name => ENV['KINESIS_STREAM'], :partition_key => 'id' })
+    $kinesis_client = NYPLRubyUtil::KinesisClient.new({
+        :schema_string => ENV['OUT_SCHEMA_TYPE'],
+        :stream_name => ENV['KINESIS_STREAM'],
+        :partition_key => 'id' }
+    )
     $location_client = LocationClient.new
 
     $logger.debug "Initialized function"
@@ -72,16 +75,11 @@ end
 
 def send_record_to_stream record
     begin
-        encoded_record = $out_avro_client.encode(record, base64=false)
-        $logger.info "Encoded record id# #{record['id']}"
+        $kinesis_client << record
+        $logger.info "Sent record to kinesis stream record ##{record['id']}"
     rescue AvroError => e
         $logger.warn "Record (id# #{record['id']} failed avro validation", { :status => e.message }
         raise HoldingParserError.new("Unable to encode Avro record for Kinesis")
-    end
-
-    begin
-        $kinesis_client << encoded_record
-        $logger.info "Sent record to kinesis stream record ##{record['id']}"
     rescue NYPLError => e
         $logger.warn "Record (id# #{record['id']} failed to write to kinesis", { :status => e.message }
         raise HoldingParserError.new("Failed to send encoded record to Kinesis stream")
