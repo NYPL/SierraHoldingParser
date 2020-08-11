@@ -18,8 +18,7 @@ deploy:
   timeout: 60
   module_name: app
   handler_name: handle_event
-  environment:
-    variables:
+  environment_variables:
       - "LOG_LEVEL=debug"
       - "PLATFORM_API_BASE_URL=https://dev-platform.nypl.org/api/v0.1"
       - "SCHEMA_TYPE=Holding"
