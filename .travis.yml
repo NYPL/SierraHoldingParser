@@ -18,19 +18,12 @@ deploy:
   timeout: 60
   module_name: app
   handler_name: handle_event
-  environment_variables:
-  - LOG_LEVEL=debug
-  - PLATFORM_API_BASE_URL=https://dev-platform.nypl.org/api/v0.1
-  - SCHEMA_TYPE=Holding
-  - KINESIS_STREAM=HoldingPostRequest-dev
-  - LOCATIONS_JSONLD_URL=https://s3.amazonaws.com/nypl-core-objects-mapping-production/by_sierra_location.json
+  environment_variables: "TEST_VAR=testing"
+  environment_variables: "LOG_LEVEL=debug"
   access_key_id: "$AWS_ACCESS_KEY_ID_DEV"
   secret_access_key: "$AWS_SECRET_ACCESS_KEY_DEV"
   on:
     branch: development
-  notifications:
-    email:
-      on_failure: always
 - provider: lambda
   function_name: SierraHoldingParser-qa
   description: A function that parses holding records from the Sierra API
@@ -41,15 +34,18 @@ deploy:
   module_name: app
   handler_name: handle_event
   environment_variables:
-  - LOG_LEVEL=debug
-  - PLATFORM_API_BASE_URL=https://qa-platform.nypl.org/api/v0.1
-  - SCHEMA_TYPE=Holding
-  - KINESIS_STREAM=HoldingPostRequest-qa
-  - LOCATIONS_JSONLD_URL=https://s3.amazonaws.com/nypl-core-objects-mapping-production/by_sierra_location.json
+    - LOG_LEVEL=debug
+    - PLATFORM_API_BASE_URL=https://qa-platform.nypl.org/api/v0.1
+    - SCHEMA_TYPE=Holding
+    - KINESIS_STREAM=HoldingPostRequest-qa
+    - LOCATIONS_JSONLD_URL=https://s3.amazonaws.com/nypl-core-objects-mapping-production/by_sierra_location.json
   access_key_id: "$AWS_ACCESS_KEY_ID_QA"
   secret_access_key: "$AWS_SECRET_ACCESS_KEY_QA"
   on:
     branch: qa
+notifications:
+  email:
+    on_failure: always
 env:
   global:
   - AWS_DEFAULT_REGION=us-east-1
