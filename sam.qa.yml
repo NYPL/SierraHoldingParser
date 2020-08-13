@@ -13,7 +13,7 @@ Globals:
           AWS_REGION: us-east-1
 
 Resources:
-  SierraHoldingParser-qa:
+  SierraHoldingParserQA:
     Type: AWS::Serverless::Function
     Properties:
       Events:
@@ -27,7 +27,8 @@ Resources:
             BisectBatchOnFunctionError: Tru
       Environment:
         Variables:
-            KINESIS_STREAM: HoldingPostRequest
-            RECORD_TYPE: holdings
+            KINESIS_STREAM: HoldingPostRequest-qa
+            OUT_SCHEMA_TYPE: Holding
+            IN_SCHEMA_TYPE: SierraHolding
             PLATFORM_API_BASE_URL: https://qa-platform.nypl.org/api/v0.1/
             LOCATIONS_JSONLD_URL: https://s3.amazonaws.com/nypl-core-objects-mapping-production/by_sierra_location.json

@@ -5,6 +5,8 @@ require_relative './spec_helper'
 describe 'handler' do
     describe '#init' do
         before(:each) {
+            $initialized = false
+
             @kms_mock = mock()
             @kms_mock.stubs(:decrypt)
             NYPLRubyUtil::KmsClient.stubs(:new).returns(@kms_mock)
@@ -24,9 +26,10 @@ describe 'handler' do
             init
 
             expect($kms_client).to eq(@kms_mock)
-            expect($avro_client).to eq(@avro_mock)
+            expect($in_avro_client).to eq(@avro_mock)
             expect($kinesis_client).to eq(@kinesis_mock)
             expect($location_client).to eq(@locations_mock)
+            expect($initialized).to eq(true)
         end
      end
 
@@ -76,7 +79,7 @@ describe 'handler' do
     describe '#validate_record' do
         before(:each) {
             @mock_avro = mock()
-            $avro_client = @mock_avro
+            $in_avro_client = @mock_avro
         }
 
         it "should return a decoded record" do
@@ -101,8 +104,6 @@ describe 'handler' do
 
     describe '#send_record_to_stream' do
         before(:each) {
-            @mock_avro = mock()
-            $avro_client = @mock_avro
             @mock_kinesis = mock()
             $kinesis_client = @mock_kinesis
             
@@ -110,21 +111,18 @@ describe 'handler' do
         }
 
         it "should encode and send record when successful" do
-            @mock_avro.stubs(:encode).once.with(@test_record).returns(@test_record)
             @mock_kinesis.stubs(:<<).once.with(@test_record)
 
             send_record_to_stream(@test_record)
         end
 
         it "should raise an error and not invoke kinesis if encoding fails" do
-            @mock_avro.stubs(:encode).once.raises(AvroError.new('test'))
-            @mock_kinesis.stubs(:<<).never
+            @mock_kinesis.stubs(:<<).once.raises(AvroError.new('test'))
 
             expect { self.send(:send_record_to_stream, @test_record) }.to raise_error(HoldingParserError, "Unable to encode Avro record for Kinesis")
         end
 
         it "should raise an error if unable to send record to kinesis" do
-            @mock_avro.stubs(:encode).once.with(@test_record).returns(@test_record)
             @mock_kinesis.stubs(:<<).once.raises(NYPLError.new('test'))
 
             expect { self.send(:send_record_to_stream, @test_record) }.to raise_error(HoldingParserError, "Failed to send encoded record to Kinesis stream")
