@@ -119,7 +119,7 @@ describe RecordManager do
 
             @test_manager.send(:_get_check_in_card)
 
-            expect(@test_manager.instance_variable_get(:@record)['check_in_card'][1]['box_id']).to eq(2)
+            expect(@test_manager.instance_variable_get(:@record)['checkInCards'][1]['box_id']).to eq(2)
         end
 
         it 'should raise a RecordError if the status code is not 200' do
