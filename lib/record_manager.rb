@@ -53,7 +53,7 @@ class RecordManager
         # Parse response into an object
         check_in_data = JSON.parse(response.body)
         $logger.debug check_in_data
-        @record['check_in_card'] = check_in_data
+        @record['checkInCards'] = check_in_data
     end
 
     def _get_h_fields
