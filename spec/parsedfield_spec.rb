@@ -1,4 +1,4 @@
-require_relative '../lib/record_manager'
+require_relative '../lib/field_parser'
 require_relative './handler_spec'
 
 describe ParsedField do

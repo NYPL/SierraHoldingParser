@@ -100,9 +100,42 @@ describe RecordManager do
     describe :_parse_holdings do
         it 'should set a holdings array and invoke h_field parser' do
             @test_manager.stubs(:_get_h_fields).once
+            @test_manager.stubs(:_get_check_in_card).once
 
             @test_manager.send(:_parse_holdings)
             expect(@test_manager.instance_variable_get(:@record)['holdings']).to eq([])
+        end
+    end
+
+    describe :_get_check_in_card do
+        it 'should add an array for the check_in_card field on success' do
+            mock_resp = mock()
+            mock_resp.stubs(:code).returns('200')
+            mock_resp.stubs(:body).returns(JSON.dump([
+                { 'box_id': 1 }, { 'box_id': 2 }, { 'box_id': 3 }
+            ]))
+
+            Net::HTTP.stubs(:get_response).returns(mock_resp)
+
+            @test_manager.send(:_get_check_in_card)
+
+            expect(@test_manager.instance_variable_get(:@record)['check_in_card'][1]['box_id']).to eq(2)
+        end
+
+        it 'should raise a RecordError if the status code is not 200' do
+            mock_resp = mock()
+            mock_resp.stubs(:code).returns('400')
+            mock_resp.stubs(:body).returns('Test Error Message')
+
+            Net::HTTP.stubs(:get_response).returns(mock_resp)
+
+            expect { @test_manager.send(:_get_check_in_card) }.to raise_error(RecordError, 'Unable to load check-in card data with status 400')
+        end
+        
+        it 'should raise a RecordError if the HTTP request fails' do
+            Net::HTTP.stubs(:get_response).raises(Exception.new)
+            
+            expect { @test_manager.send(:_get_check_in_card) }.to raise_error(RecordError, 'Could not load check-in-card data')
         end
     end
 
