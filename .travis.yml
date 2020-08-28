@@ -4,6 +4,7 @@ rvm:
 before_install:
 - gem update --system
 - gem install bundler
+- gem install aws-sdk-lambda
 install:
 - rake run_bundler
 script:
@@ -59,16 +60,25 @@ deploy:
   timeout: 60
   module_name: app
   handler_name: handle_event
+  event: arn:aws:kinesis:us-east-1:946183545209:stream/SierraHoldingParser-production
+  vpc:
+    subnet_ids:
+      - subnet-59bcdd03
+      - subnet-5deecd15
+    security_group_ids:
+      - sg-116eeb60
   environment_variables:
   - LOG_LEVEL=debug
   - PLATFORM_API_BASE_URL=https://platform.nypl.org/api/v0.1
   - SCHEMA_TYPE=Holding
   - KINESIS_STREAM=HoldingPostRequest-production
   - LOCATIONS_JSONLD_URL=https://s3.amazonaws.com/nypl-core-objects-mapping-production/by_sierra_location.json
-  access_key_id: "$AWS_ACCESS_KEY_ID_QA"
-  secret_access_key: "$AWS_SECRET_ACCESS_KEY_QA"
+  access_key_id: "$AWS_ACCESS_KEY_ID_PRODUCTION"
+  secret_access_key: "$AWS_SECRET_ACCESS_KEY_PRODUCTION"
   on:
     branch: production
+after_deploy:
+- rake set_config
 env:
   global:
   - AWS_DEFAULT_REGION=us-east-1

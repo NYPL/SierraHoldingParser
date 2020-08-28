@@ -1,4 +1,4 @@
-# Basic utility commands to make working with SAM and AWS Lambda more friendly 
+# Basic utility commands to make working with SAM and AWS Lambda more friendly
 
 desc "Run test suite"
 task :test do
@@ -13,4 +13,56 @@ end
 desc "Run bundler for local development and deployment"
 task :run_bundler do
     sh %{ bundle config unset deployment; bundle install; bundle config set deployment 'true'; bundle install }
+end
+
+task :set_config do
+  require 'aws-sdk-lambda'
+  require 'yaml'
+  travis_branch = ENV["TRAVIS_BRANCH"].upcase
+  p 'TRAVIS_BRANCH: ', travis_branch
+  aws_access_key_id = ENV["AWS_ACCESS_KEY_ID_#{travis_branch}"]
+  aws_secret_access_key = ENV["AWS_SECRET_ACCESS_KEY_#{travis_branch}"]
+  if aws_access_key_id && aws_secret_access_key
+      aws_configuration = {
+        region: 'us-east-1',
+        access_key_id: aws_access_key_id,
+        secret_access_key: aws_secret_access_key
+      }
+  end
+  p 'using configuration: ', aws_configuration
+  if is_defined? aws_configuration
+    lambda_client = Aws::Lambda::Client.new(aws_configuration)
+    yaml = YAML.safe_load(File.read('.travis.yml'))
+    lambda_config = yaml["deploy"].find {|conf| conf["function_name"].include? travis_branch.downcase}
+    function_name = conf["function_name"]
+    event = lambda_config["event"]
+    vpc = lambda_config["vpc"]
+    environment_variables = lambda_config["environment_variables"].map {|str| str.split "="}.to_h
+    updated_lambda_configuration = {
+        function_name: function_name,
+        environment: { variables: environment_variables },
+        vpc_config: vpc_config
+    }
+    p 'update_function_configuration with: ', updated_lambda_configuration
+    update_configuration_resp = lambda_client.update_function_configuration(updated_lambda_configuration)
+    p 'update_configuration_resp: ', update_configuration_resp
+    if event
+      existing_events = lambda_client.list_event_source_mappings({function_name: function_name})
+      if !existing_events.any? { |event| event.event_source_arn == event }
+        event_to_create = {
+          event_source_arn: event,
+          function_name: function_name
+        }
+        p 'creating event: ', event_to_create
+        create_resp = lambda_client.create_event_source_mapping(event_to_create)
+        p 'created: ', resp
+      end
+      existing_events.each do |event|
+        if event.event_source_arn != event
+          p 'deleting event with uuid: ', event.uuid 'and arn: ', event.event_source_arn
+          lambda_client.delete_event_source_mapping({uuid: event.uuid})
+        end
+      end
+    end
+  end
 end
