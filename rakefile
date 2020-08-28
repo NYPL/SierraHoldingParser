@@ -34,7 +34,7 @@ task :set_config do
     lambda_client = Aws::Lambda::Client.new(aws_configuration)
     yaml = YAML.safe_load(File.read('.travis.yml'))
     lambda_config = yaml["deploy"].find {|conf| conf["function_name"].include? travis_branch.downcase}
-    function_name = lambda_conf["function_name"]
+    function_name = lambda_config["function_name"]
     event = lambda_config["event"]
     vpc = lambda_config["vpc"]
     environment_variables = lambda_config["environment_variables"].map {|str| str.split "="}.to_h
