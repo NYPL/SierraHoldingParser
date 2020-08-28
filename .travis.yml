@@ -50,6 +50,25 @@ deploy:
   secret_access_key: "$AWS_SECRET_ACCESS_KEY_QA"
   on:
     branch: qa
+- provider: lambda
+  function_name: SierraHoldingParser-production
+  description: A function that parses holding records from the Sierra API
+  region: us-east-1
+  role: arn:aws:iam::946183545209:role/lambda-full-access
+  runtime: ruby2.7
+  timeout: 60
+  module_name: app
+  handler_name: handle_event
+  environment_variables:
+  - LOG_LEVEL=debug
+  - PLATFORM_API_BASE_URL=https://platform.nypl.org/api/v0.1
+  - SCHEMA_TYPE=Holding
+  - KINESIS_STREAM=HoldingPostRequest-production
+  - LOCATIONS_JSONLD_URL=https://s3.amazonaws.com/nypl-core-objects-mapping-production/by_sierra_location.json
+  access_key_id: "$AWS_ACCESS_KEY_ID_QA"
+  secret_access_key: "$AWS_SECRET_ACCESS_KEY_QA"
+  on:
+    branch: production
 env:
   global:
   - AWS_DEFAULT_REGION=us-east-1
