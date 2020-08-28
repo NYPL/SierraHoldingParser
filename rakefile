@@ -30,7 +30,7 @@ task :set_config do
       }
   end
   p 'using configuration: ', aws_configuration
-  if is_defined? aws_configuration
+  if defined? aws_configuration
     lambda_client = Aws::Lambda::Client.new(aws_configuration)
     yaml = YAML.safe_load(File.read('.travis.yml'))
     lambda_config = yaml["deploy"].find {|conf| conf["function_name"].include? travis_branch.downcase}
