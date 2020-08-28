@@ -59,7 +59,7 @@ task :set_config do
       end
       existing_events.each do |event|
         if event.event_source_arn != event
-          p 'deleting event with uuid: ', event.uuid 'and arn: ', event.event_source_arn
+          p 'deleting event with uuid: ', event.uuid, 'and arn: ', event.event_source_arn
           lambda_client.delete_event_source_mapping({uuid: event.uuid})
         end
       end
