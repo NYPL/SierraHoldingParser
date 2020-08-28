@@ -57,7 +57,7 @@ task :set_config do
         }
         p 'creating event: ', event_to_create
         create_resp = lambda_client.create_event_source_mapping(event_to_create)
-        p 'created: ', resp
+        p 'created: ', create_resp
       end
       existing_events.each do |event|
         if event.event_source_arn != event
