@@ -51,7 +51,9 @@ task :set_config do
       if !existing_events.any? { |event| event.event_source_arn == event }
         event_to_create = {
           event_source_arn: event,
-          function_name: function_name
+          function_name: function_name,
+          bisect_batch_on_function_error: true,
+          starting_position: "LATEST"
         }
         p 'creating event: ', event_to_create
         create_resp = lambda_client.create_event_source_mapping(event_to_create)
