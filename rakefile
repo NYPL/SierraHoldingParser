@@ -47,7 +47,7 @@ task :set_config do
     update_configuration_resp = lambda_client.update_function_configuration(updated_lambda_configuration)
     p 'update_configuration_resp: ', update_configuration_resp
     if event
-      existing_events = lambda_client.list_event_source_mappings({function_name: function_name})
+      existing_events = lambda_client.list_event_source_mappings({function_name: function_name}).event_source_mappings
       if !existing_events.any? { |event| event.event_source_arn == event }
         event_to_create = {
           event_source_arn: event,
