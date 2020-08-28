@@ -36,7 +36,7 @@ task :set_config do
     lambda_config = yaml["deploy"].find {|conf| conf["function_name"].include? travis_branch.downcase}
     function_name = lambda_config["function_name"]
     event = lambda_config["event"]
-    vpc = lambda_config["vpc"]
+    vpc_config = lambda_config["vpc"]
     environment_variables = lambda_config["environment_variables"].map {|str| str.split "="}.to_h
     updated_lambda_configuration = {
         function_name: function_name,
