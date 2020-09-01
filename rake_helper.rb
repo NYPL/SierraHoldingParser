@@ -109,18 +109,22 @@ class RakeHelper
     begin
       policy_resp = lambda_client.get_policy(function_name: function_name)
       unless policy_resp.policy.include?("#{function_name}-permission")
-        permission = lambda_client.add_permission({
-          function_name: function_name,
-          principal: 'events.amazonaws.com',
-          statement_id: "#{function_name}-permission",
-          action: 'lambda:InvokeFunction'
-          })
-          p 'permission: ', permission
-        else
-          p 'lambda already has permission'
-        end
+          add_policy = true
+      else
+        p 'lambda already has permission'
+      end
     rescue Aws::Lambda::Errors::ResourceNotFoundException
+      add_policy = true
       p 'no policy'
+    end
+    if add_policy
+      permission = lambda_client.add_permission({
+        function_name: function_name,
+        principal: 'events.amazonaws.com',
+        statement_id: "#{function_name}-permission",
+        action: 'lambda:InvokeFunction'
+        })
+      p 'permission: ', permission
     end
     p 'putting targets ', 'rule: ', rule_name, 'target_id: ', target_id, "arn: ", arn
     events_client.put_targets(rule: rule_name, targets: [{id: target_id, arn: arn}])
