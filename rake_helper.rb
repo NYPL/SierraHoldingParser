@@ -21,20 +21,22 @@ class RakeHelper
     @travis_branch = ['MAIN', 'MASTER'].include? @travis_branch ? 'PRODUCTION' : @travis_branch
     @aws_access_key_id = ENV["AWS_ACCESS_KEY_ID_#{travis_branch}"]
     @aws_secret_access_key = ENV["AWS_SECRET_ACCESS_KEY_#{travis_branch}"]
-    @aws_configuration = aws_configuration = {
-      region: 'us-east-1',
-      access_key_id: aws_access_key_id,
-      secret_access_key: aws_secret_access_key
-    }
+    @yaml = YAML.safe_load(File.read('.travis.yml'))
     p 'using configuration: ', aws_configuration
     if configured?
       @lambda_client = Aws::Lambda::Client.new(aws_configuration)
       @lambda_config = yaml["deploy"].find {|conf| conf["function_name"].include? travis_branch.downcase}
+      region = @lambda_config["region"]
+      @aws_configuration = aws_configuration = {
+        region: region,
+        access_key_id: aws_access_key_id,
+        secret_access_key: aws_secret_access_key
+      }
     end
   end
 
   def configured?
-    access_key_id && secret_access_key
+    access_key_id && secret_access_key && region
   end
 
 
@@ -68,30 +70,27 @@ class RakeHelper
     end
 
     @event = lambda_config["event"]
-    if event.include?("arn")
+    if event["event_source_arn"]
       add_event_source
-    elsif event.include?("SCHEDULE_EXPRESSION")
+    elsif event["SCHEDULE_EXPRESSION"]
       add_cron
     end
   end
 
   def add_event_source
     existing_events = lambda_client.list_event_source_mappings({function_name: function_name}).event_source_mappings
-    if !existing_events.any? { |event| event.event_source_arn == event }
-      event_to_create = {
-        event_source_arn: event,
-        function_name: function_name,
-        bisect_batch_on_function_error: true,
-        starting_position: "LATEST"
-      }
+    arn = event["event_source_arn"]
+    if !existing_events.any? { |existing_event| existing_event.event_source_arn == arn }
+      event_to_create = event.map {|k,v| [k.to_sym, v]}.to_h
+      event_to_create[:function_name] = function_name
       p 'creating event: ', event_to_create
       create_resp = lambda_client.create_event_source_mapping(event_to_create)
       p 'created: ', create_resp
     end
-    existing_events.each do |event|
-      if event.event_source_arn != event
-        p 'deleting event with uuid: ', event.uuid, 'and arn: ', event.event_source_arn
-        lambda_client.delete_event_source_mapping({uuid: event.uuid})
+    existing_events.each do |existing_event|
+      if existing_event.event_source_arn != arn
+        p 'deleting event with uuid: ', existing_event.uuid, 'and arn: ', existing_event.event_source_arn
+        lambda_client.delete_event_source_mapping({uuid: existing_event.uuid})
       end
     end
   end
@@ -109,20 +108,19 @@ class RakeHelper
     arn = lambda_resp.function_arn
     begin
       policy_resp = lambda_client.get_policy(function_name: function_name)
-    rescue => e
-      no_policy = (e.class == Aws::Lambda::Errors::ResourceNotFoundException)
+      unless policy_resp.policy.include?("#{function_name}-permission")
+        permission = lambda_client.add_permission({
+          function_name: function_name,
+          principal: 'events.amazonaws.com',
+          statement_id: "#{function_name}-permission",
+          action: 'lambda:InvokeFunction'
+          })
+          p 'permission: ', permission
+        else
+          p 'lambda already has permission'
+        end
+    rescue Aws::Lambda::Errors::ResourceNotFoundException
       p 'no policy'
-    end
-    if no_policy || !policy_resp.policy.include?("#{function_name}-permission")
-      permission = lambda_client.add_permission({
-        function_name: function_name,
-        principal: 'events.amazonaws.com',
-        statement_id: "#{function_name}-permission",
-        action: 'lambda:InvokeFunction'
-        })
-        p 'permission: ', permission
-    else
-      p 'lambda already has permission'
     end
     p 'putting targets ', 'rule: ', rule_name, 'target_id: ', target_id, "arn: ", arn
     events_client.put_targets(rule: rule_name, targets: [{id: target_id, arn: arn}])
