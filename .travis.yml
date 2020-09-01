@@ -74,7 +74,7 @@ deploy:
   access_key_id: "$AWS_ACCESS_KEY_ID_PRODUCTION"
   secret_access_key: "$AWS_SECRET_ACCESS_KEY_PRODUCTION"
   on:
-    branch: production
+    branch: main
 after_deploy:
 - rake set_config
 notifications:
