@@ -108,8 +108,7 @@ class RakeHelper
     ## the first step is to get the lambda
 
     return p 'missing function_name' unless function_name
-    target_id = "#{function_name}-lambda"
-    p 'getting lambda with function name', function_name, 'target_id', target_id
+    p 'getting lambda with function name', function_name
     lambda_resp = lambda_client.get_function(function_name: function_name).configuration
     arn = lambda_resp.function_arn
 
@@ -139,6 +138,7 @@ class RakeHelper
     end
 
     ## finally we can tell the event to invoke the lambda
+    target_id = "#{function_name}-lambda"
     p 'putting targets ', 'rule: ', rule_name, 'target_id: ', target_id, "arn: ", arn
     events_client.put_targets(rule: rule_name, targets: [{id: target_id, arn: arn}])
   end
