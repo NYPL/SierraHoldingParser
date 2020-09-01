@@ -97,11 +97,11 @@ class RakeHelper
 
   def add_cron
     events_client = Aws::CloudWatchEvents::Client.new(configuration)
-    schedule_expression = event.split("=")[1]
+    schedule_expression = event["schedule_expression"]
     rule_name = "#{function_name}-rule"
     p 'rule_name: ', rule_name, 'schedule_expression: ', schedule_expression
     events_client.put_rule(name: rule_name, schedule_expression: schedule_expression)
-    return p 'missing function_name' unless functin_name
+    return p 'missing function_name' unless function_name
     target_id = "#{function_name}-lambda"
     p 'getting lambda with function name', function_name, 'target_id', target_id
     lambda_resp = lambda_client.get_function(function_name: function_name).configuration
