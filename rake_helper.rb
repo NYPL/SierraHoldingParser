@@ -18,6 +18,7 @@ class RakeHelper
 
   def initialize
     @travis_branch = ENV["TRAVIS_BRANCH"].upcase
+    @travis_branch = ['MAIN', 'MASTER'].include? @travis_branch ? 'PRODUCTION' : @travis_branch
     @aws_access_key_id = ENV["AWS_ACCESS_KEY_ID_#{travis_branch}"]
     @aws_secret_access_key = ENV["AWS_SECRET_ACCESS_KEY_#{travis_branch}"]
     @aws_configuration = aws_configuration = {

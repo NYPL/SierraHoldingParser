@@ -17,7 +17,7 @@ task :run_bundler do
 end
 
 desc "Update lambda layers, environment_variables, vpc, and events"
-take :set_config do
+task :set_config do
   rake_helper = RakeHelper.new
   rake_helper.update_lambda_configuration
   rake_helper.update_event
