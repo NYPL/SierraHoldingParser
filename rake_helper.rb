@@ -96,16 +96,25 @@ class RakeHelper
   end
 
   def add_cron
+
+    ## create the event
     events_client = Aws::CloudWatchEvents::Client.new(configuration)
     schedule_expression = event["schedule_expression"]
     rule_name = "#{function_name}-rule"
     p 'rule_name: ', rule_name, 'schedule_expression: ', schedule_expression
     events_client.put_rule(name: rule_name, schedule_expression: schedule_expression)
+
+    ## next we have to connect the event to the lambda
+    ## the first step is to get the lambda
+
     return p 'missing function_name' unless function_name
     target_id = "#{function_name}-lambda"
     p 'getting lambda with function name', function_name, 'target_id', target_id
     lambda_resp = lambda_client.get_function(function_name: function_name).configuration
     arn = lambda_resp.function_arn
+
+    ## next figure out if the lambda already has granted cloudwatch
+    ## permission to invoke
     begin
       policy_resp = lambda_client.get_policy(function_name: function_name)
       unless policy_resp.policy.include?("#{function_name}-permission")
@@ -117,6 +126,8 @@ class RakeHelper
       add_policy = true
       p 'no policy'
     end
+
+    ## if not, add permission to invoke
     if add_policy
       permission = lambda_client.add_permission({
         function_name: function_name,
@@ -126,6 +137,8 @@ class RakeHelper
         })
       p 'permission: ', permission
     end
+
+    ## finally we can tell the event to invoke the lambda
     p 'putting targets ', 'rule: ', rule_name, 'target_id: ', target_id, "arn: ", arn
     events_client.put_targets(rule: rule_name, targets: [{id: target_id, arn: arn}])
   end
