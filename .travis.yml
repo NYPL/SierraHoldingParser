@@ -20,18 +20,15 @@ deploy:
   module_name: app
   handler_name: handle_event
   environment_variables:
-  - LOG_LEVEL=debug
-  - PLATFORM_API_BASE_URL=https://dev-platform.nypl.org/api/v0.1
-  - SCHEMA_TYPE=Holding
-  - KINESIS_STREAM=HoldingPostRequest-dev
-  - LOCATIONS_JSONLD_URL=https://s3.amazonaws.com/nypl-core-objects-mapping-production/by_sierra_location.json
+      - "LOG_LEVEL=debug"
+      - "PLATFORM_API_BASE_URL=https://dev-platform.nypl.org/api/v0.1"
+      - "SCHEMA_TYPE=Holding"
+      - "KINESIS_STREAM=HoldingPostRequest-dev"
+      - "LOCATIONS_JSONLD_URL=https://s3.amazonaws.com/nypl-core-objects-mapping-production/by_sierra_location.json"
   access_key_id: "$AWS_ACCESS_KEY_ID_DEV"
   secret_access_key: "$AWS_SECRET_ACCESS_KEY_DEV"
   on:
     branch: development
-  notifications:
-    email:
-      on_failure: always
 - provider: lambda
   function_name: SierraHoldingParser-qa
   description: A function that parses holding records from the Sierra API
@@ -42,11 +39,11 @@ deploy:
   module_name: app
   handler_name: handle_event
   environment_variables:
-  - LOG_LEVEL=debug
-  - PLATFORM_API_BASE_URL=https://qa-platform.nypl.org/api/v0.1
-  - SCHEMA_TYPE=Holding
-  - KINESIS_STREAM=HoldingPostRequest-qa
-  - LOCATIONS_JSONLD_URL=https://s3.amazonaws.com/nypl-core-objects-mapping-production/by_sierra_location.json
+    - LOG_LEVEL=debug
+    - PLATFORM_API_BASE_URL=https://qa-platform.nypl.org/api/v0.1
+    - SCHEMA_TYPE=Holding
+    - KINESIS_STREAM=HoldingPostRequest-qa
+    - LOCATIONS_JSONLD_URL=https://s3.amazonaws.com/nypl-core-objects-mapping-production/by_sierra_location.json
   access_key_id: "$AWS_ACCESS_KEY_ID_QA"
   secret_access_key: "$AWS_SECRET_ACCESS_KEY_QA"
   on:
@@ -79,6 +76,9 @@ deploy:
     branch: production
 after_deploy:
 - rake set_config
+notifications:
+  email:
+    on_failure: always
 env:
   global:
   - secure: HTGJVc7TlaeeddbC0LEYREPSzkUz2Vss9t6lRJ8yMbaJFXWmoTECeMrXhdjr8Pe0WcxEMiTLbdbMLVZkMIHjqFpj7y4qXmirSPeAyCdLqr/cJPj2djNPkeX2uLZecchAie2D9bQOoh2i7Cytj5txsVrVJ7QrlG/6yu06Ntf8JRE92W3BWUBsBYPEuNWxVOddKPm/PStHjYOvkH8HwS64EnKCOBZCwHtk4rp/QdGvrZwSvdJxTiAVaQqcTJQ9FgT/+RCKyP0xeS0F8jQlbFnX9wUULjnvzR4+PehKtvRuDvu1/NrxgiNGzH6/TBuQqh/OirvwOmz/h5uDH9f79hjVXs16Virnw7u+bgu63c2OaEfGCjHwySULTdTo7G3XSgccTNdVJRutbOMxkQpQvlkkvs4dy2UzJ20mHPe2URCRQnPGqZQC+otCYp/SfkcH474/hMV8Wxb0bd+AE1jUI8PR3y8lFjwekJ0eAhGOj+3pFWjKjwV5ZTTki532ti0LZ94nAkCr5mb4RvdL0mUwj1HNJw8bmgi2MxFOB2pGHN5g+Ej2pJhzB0d+98ddCjvg0UuzRq3VRjHO4NLTlePw9VPDkRPF7HXeaglL2eQLOrZvygEhbz+q5NBUeXe3Kj/mOu2/jn09TXxoPOCl4mC32A1oxB7fx0J2RhyxeMPMcGPO7oQ=
