@@ -80,19 +80,15 @@ class RakeHelper
   def add_event_source
     existing_events = lambda_client.list_event_source_mappings({function_name: function_name}).event_source_mappings
     arn = event["event_source_arn"]
-    if !existing_events.any? { |existing_event| existing_event.event_source_arn == arn }
-      event_to_create = event.map {|k,v| [k.to_sym, v]}.to_h
-      event_to_create[:function_name] = function_name
-      p 'creating event: ', event_to_create
-      create_resp = lambda_client.create_event_source_mapping(event_to_create)
-      p 'created: ', create_resp
-    end
     existing_events.each do |existing_event|
-      if existing_event.event_source_arn != arn
-        p 'deleting event with uuid: ', existing_event.uuid, 'and arn: ', existing_event.event_source_arn
-        lambda_client.delete_event_source_mapping({uuid: existing_event.uuid})
-      end
+      p 'deleting event with uuid: ', existing_event.uuid, 'and arn: ', existing_event.event_source_arn
+      lambda_client.delete_event_source_mapping({uuid: existing_event.uuid})
     end
+    event_to_create = event.map {|k,v| [k.to_sym, v]}.to_h
+    event_to_create[:function_name] = function_name
+    p 'creating event: ', event_to_create
+    create_resp = lambda_client.create_event_source_mapping(event_to_create)
+    p 'created: ', create_resp
   end
 
   def add_cron
