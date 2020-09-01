@@ -39,7 +39,13 @@ deploy:
   timeout: 60
   module_name: app
   handler_name: handle_event
-  event: arn:aws:kinesis:us-east-1:946183545209:stream/SierraHoldingParser-qa
+  event:
+    event_source_arn: arn:aws:kinesis:us-east-1:946183545209:stream/SierraHoldingParser-qa
+    batch_size: 10
+    maximum_record_age_in_seconds: 86400
+    bisect_batch_on_function_error: true
+    maximum_retry_attempts: 3
+    starting_position: LATEST
   environment_variables:
     - LOG_LEVEL=debug
     - PLATFORM_API_BASE_URL=https://qa-platform.nypl.org/api/v0.1
@@ -61,8 +67,8 @@ deploy:
   handler_name: handle_event
   event:
     event_source_arn: arn:aws:kinesis:us-east-1:946183545209:stream/SierraHoldingParser-production
-    batch_size: 1
-    maximum_record_age_in_seconds: 1000
+    batch_size: 10
+    maximum_record_age_in_seconds: 86400
     bisect_batch_on_function_error: true
     maximum_retry_attempts: 3
     starting_position: LATEST
