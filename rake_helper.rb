@@ -26,7 +26,7 @@ class RakeHelper
     p 'using configuration: ', aws_configuration
     if configured?
       @lambda_client = Aws::Lambda::Client.new(aws_configuration)
-      @lambda_config = yaml["deploy"].find {|conf| conf["function_name"].include? travis_branch.downcase}
+      @lambda_config = yaml["deploy"].find {|conf| name_matches_branch?(conf["function_name"], travis_branch.downcase)}
       @region = @lambda_config["region"]
       @aws_configuration = aws_configuration = {
         region: region,
@@ -38,6 +38,19 @@ class RakeHelper
 
   def configured?
     aws_access_key_id && aws_secret_access_key && region
+  end
+
+  def name_matches_branch?(name, branch)
+    downcase_name = name.downcase
+    downcase_branch = branch.downcase
+    variants = [
+      ['dev', 'development'],
+      ['qa'],
+      ['main', 'master', 'production'],
+    ]
+    variants.any? do |group|
+      group.include?(downcase_name) && group.include?(downcase_branch)
+    end
   end
 
 
