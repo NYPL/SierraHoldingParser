@@ -9,6 +9,7 @@ class RakeHelper
     :aws_access_key_id,
     :aws_secret_access_key,
     :aws_configuration,
+    :region,
     :lambda_client,
     :yaml,
     :lambda_config,
@@ -26,7 +27,7 @@ class RakeHelper
     if configured?
       @lambda_client = Aws::Lambda::Client.new(aws_configuration)
       @lambda_config = yaml["deploy"].find {|conf| conf["function_name"].include? travis_branch.downcase}
-      region = @lambda_config["region"]
+      @region = @lambda_config["region"]
       @aws_configuration = aws_configuration = {
         region: region,
         access_key_id: aws_access_key_id,
@@ -36,7 +37,7 @@ class RakeHelper
   end
 
   def configured?
-    access_key_id && secret_access_key && region
+    aws_access_key_id && aws_secret_access_key && region
   end
 
 
