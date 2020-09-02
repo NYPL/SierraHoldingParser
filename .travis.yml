@@ -26,8 +26,8 @@ deploy:
   - SCHEMA_TYPE=Holding
   - KINESIS_STREAM=HoldingPostRequest-dev
   - LOCATIONS_JSONLD_URL=https://s3.amazonaws.com/nypl-core-objects-mapping-production/by_sierra_location.json
-  access_key_id: "$AWS_ACCESS_KEY_ID_DEV"
-  secret_access_key: "$AWS_SECRET_ACCESS_KEY_DEV"
+  access_key_id: "$AWS_ACCESS_KEY_ID_DEVELOPMENT"
+  secret_access_key: "$AWS_SECRET_ACCESS_KEY_DEVELOPMENT"
   on:
     branch: development
 - provider: lambda
