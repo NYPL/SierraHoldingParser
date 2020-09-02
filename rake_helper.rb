@@ -46,7 +46,7 @@ class RakeHelper
     variants = [
       ['dev', 'development'],
       ['qa'],
-      ['main', 'master', 'production'],
+      ['main', 'master', 'production', 'prod'],
     ]
     variants.any? do |group|
       group.any? {|variant| downcase_name.include? variant} && group.any? {|variant| downcase_branch.include?(variant)}
