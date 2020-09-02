@@ -49,7 +49,7 @@ class RakeHelper
       ['main', 'master', 'production'],
     ]
     variants.any? do |group|
-      group.include?(downcase_name) && group.include?(downcase_branch)
+      group.any? {|variant| downcase_name.include? variant} && group.any? {|variant| downcase_branch.include?(variant)}
     end
   end
 
