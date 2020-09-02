@@ -26,7 +26,7 @@ class RakeHelper
     p 'using configuration: ', aws_configuration
     if configured?
       @lambda_client = Aws::Lambda::Client.new(aws_configuration)
-      @lambda_config = yaml["deploy"].find {|conf| name_matches_branch?(conf["function_name"], travis_branch.downcase)}
+      @lambda_config = yaml["deploy"].find {|conf| name_matches_branch?(conf["function_name"], travis_branch)}
       @region = @lambda_config["region"]
       @aws_configuration = aws_configuration = {
         region: region,
