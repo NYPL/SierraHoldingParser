@@ -23,17 +23,16 @@ class RakeHelper
     @aws_access_key_id = ENV["AWS_ACCESS_KEY_ID_#{travis_branch}"]
     @aws_secret_access_key = ENV["AWS_SECRET_ACCESS_KEY_#{travis_branch}"]
     @yaml = YAML.safe_load(File.read('.travis.yml'))
+    @lambda_config = yaml["deploy"].find {|conf| name_matches_branch?(conf["function_name"], travis_branch)}
+    @region = @lambda_config["region"]
+    @aws_configuration = {
+      region: region,
+      access_key_id: aws_access_key_id,
+      secret_access_key: aws_secret_access_key
+    }
     p 'using configuration: ', aws_configuration
-    if configured?
-      @lambda_client = Aws::Lambda::Client.new(aws_configuration)
-      @lambda_config = yaml["deploy"].find {|conf| name_matches_branch?(conf["function_name"], travis_branch)}
-      @region = @lambda_config["region"]
-      @aws_configuration = aws_configuration = {
-        region: region,
-        access_key_id: aws_access_key_id,
-        secret_access_key: aws_secret_access_key
-      }
-    end
+    p 'lambda config: ', lambda_config
+    @lambda_client = Aws::Lambda::Client.new(aws_configuration) if configured?
   end
 
   def configured?
