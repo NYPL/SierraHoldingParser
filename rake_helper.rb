@@ -19,12 +19,13 @@ class RakeHelper
 
   def initialize
     @travis_branch = ENV["TRAVIS_BRANCH"].upcase
-    @travis_branch = ['MAIN', 'MASTER'].include? @travis_branch ? 'PRODUCTION' : @travis_branch
+    @travis_branch = ['MAIN', 'MASTER'].include?(@travis_branch) ? 'PRODUCTION' : @travis_branch
     @aws_access_key_id = ENV["AWS_ACCESS_KEY_ID_#{travis_branch}"]
     @aws_secret_access_key = ENV["AWS_SECRET_ACCESS_KEY_#{travis_branch}"]
     @yaml = YAML.safe_load(File.read('.travis.yml'))
     @lambda_config = yaml["deploy"].find {|conf| name_matches_branch?(conf["function_name"], travis_branch)}
     @region = @lambda_config["region"]
+    @function_name = @lambda_config["function_name"]
     @aws_configuration = {
       region: region,
       access_key_id: aws_access_key_id,
@@ -59,25 +60,20 @@ class RakeHelper
       return nil
     end
 
-
-    vpc_config = lambda_config["vpc"]
-    environment_variables = lambda_config["environment_variables"]&.map {|str| str.split "="}.to_h
-    layers = lambda_config["layers"]
-    updated_lambda_configuration = [
-      :vpc_config,
-      :environment_variables,
-      :layers
-    ]
-      .select {|key| lambda_config[key]}
-      .map {|key| [key, lambda_config[key]]}
-      .to_h
+    updated_lambda_configuration = {
+      function_name: function_name,
+      vpc_config: lambda_config["vpc_config"],
+      environment: lambda_config["environment"],
+      layers: lambda_config["layers"]
+    }
+    updated_lambda_configuration[:function_name] = function_name
     p 'updating_function_configuration with: ', updated_lambda_configuration
     update_configuration_resp = lambda_client.update_function_configuration(updated_lambda_configuration)
     p 'update_configuration_resp: ', update_configuration_resp
   end
 
   def update_event
-    unless lambda_config["events"]
+    unless lambda_config["event"]
       p 'no event config'
       return nil
     end
