@@ -30,8 +30,9 @@ deploy:
   environment:
     variables:
      LOG_LEVEL: debug
-     PLATFORM_API_BASE_URL: https://dev-platform.nypl.org/api/v0.1
-     SCHEMA_TYPE: Holding
+     PLATFORM_API_BASE_URL: https://dev-platform.nypl.org/api/v0.1/
+     IN_SCHEMA_TYPE: SierraHolding
+     OUT_SCHEMA_TYPE: Holding
      KINESIS_STREAM: HoldingPostRequest-dev
      LOCATIONS_JSONLD_URL: https://s3.amazonaws.com/nypl-core-objects-mapping-production/by_sierra_location.json
   access_key_id: "$AWS_ACCESS_KEY_ID_DEVELOPMENT"
@@ -57,8 +58,9 @@ deploy:
   environment:
     variables:
       LOG_LEVEL: debug
-      PLATFORM_API_BASE_URL: https://qa-platform.nypl.org/api/v0.1
-      SCHEMA_TYPE: Holding
+      PLATFORM_API_BASE_URL: https://qa-platform.nypl.org/api/v0.1/
+      IN_SCHEMA_TYPE: SierraHolding
+      OUT_SCHEMA_TYPE: Holding
       KINESIS_STREAM: HoldingPostRequest-qa
       LOCATIONS_JSONLD_URL: https://s3.amazonaws.com/nypl-core-objects-mapping-production/by_sierra_location.json
   access_key_id: "$AWS_ACCESS_KEY_ID_QA"
@@ -90,8 +92,9 @@ deploy:
   environment:
     variables:
       LOG_LEVEL: debug
-      PLATFORM_API_BASE_URL: https://platform.nypl.org/api/v0.1
-      SCHEMA_TYPE: Holding
+      PLATFORM_API_BASE_URL: https://platform.nypl.org/api/v0.1/
+      IN_SCHEMA_TYPE: SierraHolding
+      OUT_SCHEMA_TYPE: Holding
       KINESIS_STREAM: HoldingPostRequest-production
       LOCATIONS_JSONLD_URL: https://s3.amazonaws.com/nypl-core-objects-mapping-production/by_sierra_location.json
   access_key_id: "$AWS_ACCESS_KEY_ID_PRODUCTION"
