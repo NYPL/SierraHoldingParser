@@ -37,7 +37,7 @@ class RecordManager
         $logger.debug "Fetching check-in card data for holding ##{@record['id']}"
         
         begin
-            check_in_card_uri = URI("#{ENV['PLATFORM_API_BASE_URL']}/holdings/check-in-cards?holding_id=#{@record['id']}")
+            check_in_card_uri = URI("#{ENV['PLATFORM_API_BASE_URL']}holdings/check-in-cards?holding_id=#{@record['id']}")
             response = Net::HTTP.get_response(check_in_card_uri)
         rescue Exception => e
             $logger.error "Failed to load check-in card data", { :status => e.message }
