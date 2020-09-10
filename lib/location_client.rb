@@ -11,10 +11,15 @@ class LocationClient
         location = nil
         unless code.strip == 'none'
             code_record = @locations[code.strip]
+            unless code_record && code_record['code'] && code_record['label']
+              raise NYPLLocationError.new(
+                "Missing or incomplete code_record: #{code_record} for location code: #{code}"
+              )
+            end
             location = { 'code' => code_record['code'], 'label' => code_record['label'] }
         end
-        
-        location 
+
+        location
     end
 
     private
