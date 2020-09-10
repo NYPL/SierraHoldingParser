@@ -61,5 +61,12 @@ describe LocationClient do
 
             expect(out_object).to eq(nil)
         end
+
+        it 'should raise an error if location code is not found' do
+          expect { @test_client.lookup_code 'mak' }.to raise_error(
+            NYPLLocationError,
+            "Missing or incomplete code_record: #{nil} for location code: #{'mak'}"
+          )
+        end
     end
 end
