@@ -1,5 +1,7 @@
 # SierraHoldingParser
 
+[![Build Status](https://travis-ci.com/NYPL/SierraHoldingParser.svg?branch=main)](https://travis-ci.com/NYPL/SierraHoldingParser) [![GitHub version](https://badge.fury.io/gh/nypl%2FsierraHoldingParser.svg)](https://badge.fury.io/gh/nypl%2FsierraHoldingParser) 
+
 This function takes records from the [SierraUpdatePoller](https://github.com/NYPL/sierraUpdatePollerV2/tree/development) and parses them to extract semantic meaning from the holdings fields and to enhance with data from other sources. The resulting record is validated against an Avro schema and passed to the `HoldingPoster` for persistence in the `Holding` database and passing to the `Holding` Kinesis stream for consumption by other functions.
 
 At the moment two enhancement steps will be taken:
