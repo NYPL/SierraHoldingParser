@@ -3,6 +3,11 @@ class ParsedField
 
     @@enumeration_codes = "abcdef"
     @@chronology_codes = "ijkl"
+    @@date_field_mappings = {
+        'day' => /\(?da(?:y|\.)?\)?/,
+        'month' => /\(?mo(?:n|nth)?\.?\)?/,
+        'year' => /\(?(?:yr|yea|ye)\.?\)?/
+    }
 
     def initialize(h_field, y_field)
         @h_field = h_field
@@ -23,20 +28,34 @@ class ParsedField
     private
 
     def _generate_enumeration
-        @@enumeration_codes.split('').map { |c| @h_field.include?(c) ? "#{@y_field[c]} #{@h_field[c]}" : nil }.compact.join(', ')
+        @@enumeration_codes.split('').map do |c| 
+            @h_field.include?(c) && _empty_field_check(@h_field[c]) ? "#{@y_field[c]} #{@h_field[c]}" : nil
+        end.compact.join(', ')
     end
 
     def _generate_chronology
         date_component = DateComponent.new
         components = @@chronology_codes.split('').map do |c|
-            if @h_field.include? c 
-                date_component.set_field(@y_field[c].tr('()', ''), @h_field[c])
+            if @h_field.include?(c) && _empty_field_check(@h_field[c])
+                date_component.set_field(_standardize_date_definition_field(@y_field[c]), @h_field[c])
             end
         end
 
         date_component.create_str
 
         date_component.date_str
+    end
+
+    def _standardize_date_definition_field field
+        @@date_field_mappings.each do |full_name, field_test|
+            return full_name if field_test.match?(field)
+        end
+
+        raise FieldParserError.new("Unable to identify field #{field} for chronology")
+    end
+
+    def _empty_field_check field
+        return true if field.strip.length > 0
     end
 
     class DateComponent
@@ -73,3 +92,5 @@ class ParsedField
         end
     end
 end
+
+class FieldParserError < StandardError; end
