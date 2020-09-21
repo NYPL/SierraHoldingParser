@@ -1,6 +1,8 @@
 # CHANGELOG
 
 ## 0.0.2 - Unreleased
+### Added
+- Added rubocop for linting and linted all files
 ### Fixed
 - Better locations error handling
 - Improved parsing of 853/863 fields

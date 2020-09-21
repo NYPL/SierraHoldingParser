@@ -1,24 +1,29 @@
 # Basic utility commands to make working with SAM and AWS Lambda more friendly
 require 'nypl_ruby_util'
 
-desc "Run test suite"
+desc 'Run test suite'
 task :test do
-    sh %{ rspec -fd }
+    sh %( rspec -fd )
 end
 
-desc "Run function locally. Accepts the name of the resource from the SAM config to select which function to invoke"
-task :run_local, [:event_file] do |t, args|
-    sh %{ sam local invoke -t sam.local.yml -e #{args[:event_file]} --profile nypl-digital-dev }
+desc 'Run linting'
+task :lint do
+    sh %( rubocop )
 end
 
-desc "Run bundler for local development and deployment"
+desc 'Run function locally. Accepts the name of the resource from the SAM config to select which function to invoke'
+task :run_local, [:event_file] do |_t, args|
+    sh %( sam local invoke -t sam.local.yml -e #{args[:event_file]} --profile nypl-digital-dev )
+end
+
+desc 'Run bundler for local development and deployment'
 task :run_bundler do
-    sh %{ bundle config unset deployment; bundle install; bundle config set deployment 'true'; bundle install }
+    sh %( bundle config unset deployment; bundle install; bundle config set deployment 'true'; bundle install )
 end
 
-desc "Update lambda layers, environment_variables, vpc, and events"
+desc 'Update lambda layers, environment_variables, vpc, and events'
 task :set_config do
-  rake_helper = NYPLRubyUtil::DeployHelper.new
-  rake_helper.update_lambda_configuration
-  rake_helper.update_event
+    rake_helper = NYPLRubyUtil::DeployHelper.new
+    rake_helper.update_lambda_configuration
+    rake_helper.update_event
 end

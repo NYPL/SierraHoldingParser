@@ -46,8 +46,7 @@ TEST_VARFIELDS = {
             ]
         }
     ]
-}
-
+}.freeze
 
 describe RecordManager do
     before(:each) {
@@ -109,11 +108,9 @@ describe RecordManager do
 
     describe :_get_check_in_card do
         it 'should add an array for the check_in_card field on success' do
-            mock_resp = mock()
+            mock_resp = mock
             mock_resp.stubs(:code).returns('200')
-            mock_resp.stubs(:body).returns(JSON.dump([
-                { 'box_id': 1 }, { 'box_id': 2 }, { 'box_id': 3 }
-            ]))
+            mock_resp.stubs(:body).returns(JSON.dump([{ 'box_id': 1 }, { 'box_id': 2 }, { 'box_id': 3 }]))
 
             Net::HTTP.stubs(:get_response).returns(mock_resp)
 
@@ -123,19 +120,23 @@ describe RecordManager do
         end
 
         it 'should raise a RecordError if the status code is not 200' do
-            mock_resp = mock()
+            mock_resp = mock
             mock_resp.stubs(:code).returns('400')
             mock_resp.stubs(:body).returns('Test Error Message')
 
             Net::HTTP.stubs(:get_response).returns(mock_resp)
 
-            expect { @test_manager.send(:_get_check_in_card) }.to raise_error(RecordError, 'Unable to load check-in card data with status 400')
+            expect {
+                @test_manager.send(:_get_check_in_card)
+            }.to raise_error(RecordError, 'Unable to load check-in card data with status 400')
         end
-        
+
         it 'should raise a RecordError if the HTTP request fails' do
-            Net::HTTP.stubs(:get_response).raises(Exception.new)
-            
-            expect { @test_manager.send(:_get_check_in_card) }.to raise_error(RecordError, 'Could not load check-in-card data')
+            Net::HTTP.stubs(:get_response).raises(StandardError.new)
+
+            expect {
+                @test_manager.send(:_get_check_in_card)
+            }.to raise_error(RecordError, 'Could not load check-in-card data')
         end
     end
 
@@ -143,6 +144,13 @@ describe RecordManager do
         it 'should fetch all fields with the h tag and parse the legacy, 863 and 866 fields seperately' do
             @test_manager.instance_variable_set(:@record, TEST_VARFIELDS)
 
+            @test_manager.stubs(:_load_h_fields_by_type).once.returns(
+                [
+                    [{ 'subfields' => [{ 'content' => 'test holding 2' }] }],
+                    [{ 'content' => 'test holding 1' }],
+                    [{ 'subfields' => [{ 'content' => 'test holding 3' }] }]
+                ]
+            )
             @test_manager.stubs(:_create_holding_obj).once.with(['test holding 1']).returns(['test holding 1'])
             @test_manager.stubs(:_create_holding_obj).once.with(['test holding 2']).returns(['test holding 2'])
             @test_manager.stubs(:_create_holding_obj).once.with(['test holding 3']).returns(['test holding 3'])
@@ -150,7 +158,23 @@ describe RecordManager do
 
             @test_manager.send(:_get_h_fields)
 
-            expect(@test_manager.instance_variable_get(:@record)['holdings']).to eq(['test holding 2', 'test holding 1', 'test holding 3'])
+            expect(
+                @test_manager.instance_variable_get(:@record)['holdings']
+            ).to eq(['test holding 2', 'test holding 1', 'test holding 3'])
+        end
+    end
+
+    describe :_load_h_fields_by_type do
+        it 'should filter 863, 866 and legacy fields into their own arrays' do
+            @test_manager.instance_variable_set(:@record, TEST_VARFIELDS)
+
+            test_866_arr, test_legacy_arr, test_863_arr = @test_manager.send(:_load_h_fields_by_type)
+            expect(test_866_arr[0]['marcTag']).to eq('866')
+            expect(test_866_arr[0]['subfields'][0]['content']).to eq('test holding 2')
+            expect(test_863_arr[0]['marcTag']).to eq('863')
+            expect(test_863_arr[0]['subfields'][1]['content']).to eq('test holding 3')
+            expect(test_legacy_arr[0]['marcField']).to eq(nil)
+            expect(test_legacy_arr[0]['content']).to eq('test holding 1')
         end
     end
 
@@ -158,10 +182,10 @@ describe RecordManager do
         it 'should return an array of holdings objects for all strings passed to it' do
             out_arr = @test_manager.send(:_create_holding_obj, ['test1', 'test2'])
 
-            expect(out_arr[0]['holding_string']).to eq('test1')
-            expect(out_arr[1]['holding_string']).to eq('test2')
-            expect(out_arr[0]['index']).to eq(false)
-            expect(out_arr[1]['index']).to eq(false)
+            expect(out_arr[0][:holding_string]).to eq('test1')
+            expect(out_arr[1][:holding_string]).to eq('test2')
+            expect(out_arr[0][:index]).to eq(false)
+            expect(out_arr[1][:index]).to eq(false)
         end
     end
 
@@ -170,7 +194,7 @@ describe RecordManager do
             y_fields = [TEST_VARFIELDS['varFields'][3]]
             h_fields = [TEST_VARFIELDS['varFields'][2]]
 
-            mock_parser = mock()
+            mock_parser = mock
             ParsedField.stubs(:new).once.with(
                 { 'a' => 'test holding 3' },
                 { 'a' => 'test field' }
@@ -191,14 +215,14 @@ describe RecordManager do
                 {
                     'subfields' => [
                         { 'tag' => '8', 'content' => '1' },
-                        { 'tag' => 'a', 'content' => 'test'},
+                        { 'tag' => 'a', 'content' => 'test' },
                         { 'tag' => 'b', 'content' => 'other' }
                     ]
                 },
                 {
                     'subfields' => [
                         { 'tag' => '8', 'content' => '2' },
-                        { 'tag' => 'a', 'content' => 'test2'},
+                        { 'tag' => 'a', 'content' => 'test2' },
                         { 'tag' => 'b', 'content' => 'second' }
                     ]
                 }

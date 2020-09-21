@@ -68,7 +68,7 @@ describe ParsedField do
         end
 
         it 'should return an empty string if there are no subfields in the h record' do
-            test_parser = ParsedField.new({ }, { 'a' => 'v.' })
+            test_parser = ParsedField.new({}, { 'a' => 'v.' })
 
             out_str = test_parser.send(:_generate_enumeration)
 
@@ -77,8 +77,8 @@ describe ParsedField do
 
         it 'should remove any subfields if the h record is an empty string' do
             test_parser = ParsedField.new(
-                { 'a' => '1', 'b' => '', 'c' => '3'},
-                { 'a' => 'v.', 'b' => 'ser.', 'c' => 'i.'}
+                { 'a' => '1', 'b' => '', 'c' => '3' },
+                { 'a' => 'v.', 'b' => 'ser.', 'c' => 'i.' }
             )
 
             out_str = test_parser.send(:_generate_enumeration)
@@ -88,13 +88,13 @@ describe ParsedField do
     end
 
     describe :_generate_chronology do
-        it 'should pass key/value pairs to DateComponent and get string from created object' do 
+        it 'should pass key/value pairs to DateComponent and get string from created object' do
             test_parser = ParsedField.new(
                 { 'i' => '1999', 'j' => 'Mar' },
                 { 'i' => 'year', 'j' => '(month)' }
             )
 
-            mock_date_comp = mock()
+            mock_date_comp = mock
             ParsedField::DateComponent.stubs(:new).once.returns(mock_date_comp)
             mock_date_comp.stubs(:set_field).once.with('year', '1999')
             mock_date_comp.stubs(:set_field).once.with('month', 'Mar')
@@ -106,13 +106,13 @@ describe ParsedField do
             expect(out_str).to eq('1999-Mar')
         end
 
-        it 'should pass no fields to DateComponent if no matching subfields exist and return empty string' do 
+        it 'should pass no fields to DateComponent if no matching subfields exist and return empty string' do
             test_parser = ParsedField.new(
                 { 'a' => '1', 'c' => '3' },
                 { 'i' => 'year', 'j' => '(month)' }
             )
 
-            mock_date_comp = mock()
+            mock_date_comp = mock
             ParsedField::DateComponent.stubs(:new).once.returns(mock_date_comp)
             mock_date_comp.stubs(:set_field).never
             mock_date_comp.stubs(:create_str).once
@@ -129,7 +129,7 @@ describe ParsedField do
                 { 'i' => 'year', 'j' => 'month' }
             )
 
-            mock_date_comp = mock()
+            mock_date_comp = mock
             ParsedField::DateComponent.stubs(:new).once.returns(mock_date_comp)
             mock_date_comp.stubs(:set_field).once.with('year', '1999')
             mock_date_comp.stubs(:set_field).never
@@ -147,7 +147,7 @@ describe ParsedField do
                 { 'i' => '(yr.)', 'j' => 'mo.', 'k' => 'da' }
             )
 
-            mock_date_comp = mock()
+            mock_date_comp = mock
             ParsedField::DateComponent.stubs(:new).once.returns(mock_date_comp)
             mock_date_comp.stubs(:set_field).once.with('year', '1999')
             mock_date_comp.stubs(:set_field).once.with('month', '09')
@@ -173,7 +173,9 @@ describe ParsedField do
         it 'should raise an error if the date field is not recognized' do
             test_parser = ParsedField.new({}, {})
 
-            expect { test_parser.send(:_standardize_date_definition_field, '(smthg.)') }.to raise_error(FieldParserError, 'Unable to identify field (smthg.) for chronology')
+            expect {
+                test_parser.send(:_standardize_date_definition_field, '(smthg.)')
+            }.to raise_error(FieldParserError, 'Unable to identify field (smthg.) for chronology')
         end
     end
 
