@@ -89,11 +89,11 @@ class RecordManager
     def _create_holding_obj(holding_arr)
         holding_arr.map do |h|
             {
-                holding_string: h,
-                holding_ranges: [],
-                index: false,
-                incomplete: false,
-                negation: false
+                'holding_string' => h,
+                'holding_ranges' => [],
+                'index' => false,
+                'incomplete' => false,
+                'negation' => false
             }
         end
     end

@@ -5,15 +5,16 @@ class ParsedField
     @@enumeration_codes = 'abcdef'
     @@chronology_codes = 'ijkl'
     @@date_field_mappings = {
-        'day' => /\(?da(?:y|\.)?\)?/,
-        'month' => /\(?mo(?:n|nth)?\.?\)?/,
-        'year' => /\(?(?:yr|yea|ye)\.?\)?/
+        'day' => /(?<=(?:\(|^))d(?:ay|a|)(?=(?:\.|\)|$))/,
+        'month' => /(?<=(?:\(|^))m(?:onth|on|o|)(?=(?:\.|\)|$))/,
+        'year' => /(?<=(?:\(|^))y(?:ear|ea|r|e|)(?=(?:\.|\)|$))/
     }
 
     def initialize(h_field, y_field)
         @h_field = h_field
         @y_field = y_field
         @string_rep = ''
+        @continuing = false
     end
 
     def generate_string_representation
@@ -21,24 +22,46 @@ class ParsedField
         chronology = _generate_chronology
         @string_rep += enumeration.length > 0 ? enumeration : ''
 
-        return unless chronology.length > 0
+        if chronology.length > 0
+            chronology = enumeration.length > 0 ? " (#{chronology})" : chronology
+            @string_rep += chronology
+        end
 
-        chronology = enumeration.length > 0 ? " (#{chronology})" : chronology
-        @string_rep += chronology
+        if @continuing
+            @string_rep += '-'
+        end
+
+        @string_rep
     end
 
     private
 
     def _generate_enumeration
-        @@enumeration_codes.split('').map do |c|
-            @h_field.include?(c) && _empty_field_check(@h_field[c]) ? "#{@y_field[c]} #{@h_field[c]}" : nil
-        end.compact.join(', ')
+        enumeration_elements = []
+        @@enumeration_codes.split('').each do |c|
+            next unless @h_field.include?(c) && _empty_field_check(@h_field[c]) ? "#{@y_field[c]} #{@h_field[c]}" : nil
+
+            @continuing = true if @h_field[c][-1] == '-'
+
+            clean_h_field = @h_field[c].tr('-', '').strip
+            clean_y_field = @y_field[c].tr('()', '').strip
+            if clean_y_field.length > 0
+                enumeration_elements << ', ' unless enumeration_elements.length == 0
+                enumeration_elements << "#{clean_y_field} #{clean_h_field}"
+            else
+                enumeration_elements << ':' unless enumeration_elements.length == 0
+                enumeration_elements << clean_h_field
+            end
+        end
+
+        enumeration_elements.join('')
     end
 
     def _generate_chronology
         date_component = DateComponent.new
         @@chronology_codes.split('').map do |c|
             if @h_field.include?(c) && _empty_field_check(@h_field[c])
+                @continuing = true if @h_field[c][-1] == '-'
                 date_component.set_field(_standardize_date_definition_field(@y_field[c]), @h_field[c])
             end
         end
@@ -53,6 +76,8 @@ class ParsedField
             return full_name if field_test.match?(field)
         end
 
+        return 'unknown' if field == '()'
+
         raise FieldParserError, "Unable to identify field #{field} for chronology"
     end
 
@@ -64,7 +89,7 @@ class ParsedField
     class DateComponent
         attr_reader :date_str
 
-        @@dash_regex = /(?:[\-]{2,}|[\-]$)/
+        @@dash_regex = /(?:[\-]{2}|[\-]$)/
 
         def initialize
             @start_year = nil
@@ -73,6 +98,8 @@ class ParsedField
             @end_month = nil
             @start_day = nil
             @end_day = nil
+            @start_unknown = nil
+            @end_unknown = nil
 
             @date_str = ''
         end
@@ -84,8 +111,8 @@ class ParsedField
         end
 
         def create_str
-            start_str = "#{@start_year}-#{@start_month}-#{@start_day}".gsub(@@dash_regex, '')
-            end_str = "#{@end_year}-#{@end_month}-#{@end_day}".gsub(@@dash_regex, '')
+            start_str = "#{@start_year}-#{@start_month}-#{@start_day}-#{@start_unknown}".gsub(@@dash_regex, '')
+            end_str = "#{@end_year}-#{@end_month}-#{@end_day}-#{@end_unknown}".gsub(@@dash_regex, '')
 
             @date_str = start_str == end_str ? start_str : "#{start_str}/#{end_str}"
         end

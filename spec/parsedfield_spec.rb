@@ -45,6 +45,16 @@ describe ParsedField do
 
             expect(@test_parser.string_rep).to eq('test chron')
         end
+
+        it 'should add a hyphen to the end of the string if continuing is present' do
+            @test_parser.stubs(:_generate_enumeration).once.returns('test enum')
+            @test_parser.stubs(:_generate_chronology).once.returns('test chron')
+            @test_parser.instance_variable_set(:@continuing, true)
+
+            @test_parser.generate_string_representation
+
+            expect(@test_parser.string_rep).to eq('test enum (test chron)-')
+        end
     end
 
     describe :_generate_enumeration do
@@ -84,6 +94,40 @@ describe ParsedField do
             out_str = test_parser.send(:_generate_enumeration)
 
             expect(out_str).to eq('v. 1, i. 3')
+        end
+
+        it 'should combine values with colons if no field names are provided' do
+            test_parser = ParsedField.new(
+                { 'a' => '1', 'b' => '', 'c' => '3' },
+                { 'a' => '', 'b' => '', 'c' => '' }
+            )
+
+            out_str = test_parser.send(:_generate_enumeration)
+
+            expect(out_str).to eq('1:3')
+        end
+
+        it 'should combine values with colons and commas if values are mixed' do
+            test_parser = ParsedField.new(
+                { 'a' => '1', 'b' => '2', 'c' => '3' },
+                { 'a' => 'ser.', 'b' => 'vol.', 'c' => '' }
+            )
+
+            out_str = test_parser.send(:_generate_enumeration)
+
+            expect(out_str).to eq('ser. 1, vol. 2:3')
+        end
+
+        it 'should set continuing if a hyphen is present in a value' do
+            test_parser = ParsedField.new(
+                { 'a' => '1-', 'b' => '2', 'c' => '3' },
+                { 'a' => 'ser.', 'b' => 'vol.', 'c' => '' }
+            )
+
+            out_str = test_parser.send(:_generate_enumeration)
+
+            expect(out_str).to eq('ser. 1, vol. 2:3')
+            expect(test_parser.instance_variable_get(:@continuing)).to eq(true)
         end
     end
 
@@ -159,6 +203,26 @@ describe ParsedField do
 
             expect(out_str).to eq('1999-09-09')
         end
+
+        it 'should set continuing to true if a value ends with a hyphen' do
+            test_parser = ParsedField.new(
+                { 'i' => '1999', 'j' => '23-' },
+                { 'i' => 'year', 'j' => '()' }
+            )
+
+            mock_date_comp = mock
+            ParsedField::DateComponent.stubs(:new).once.returns(mock_date_comp)
+            mock_date_comp.stubs(:set_field).once.with('year', '1999')
+            mock_date_comp.stubs(:set_field).once.with('unknown', '23-')
+            mock_date_comp.stubs(:set_field).never
+            mock_date_comp.stubs(:create_str).once
+            mock_date_comp.stubs(:date_str).once.returns('1999-23')
+
+            out_str = test_parser.send(:_generate_chronology)
+
+            expect(out_str).to eq('1999-23')
+            expect(test_parser.instance_variable_get(:@continuing)).to eq(true)
+        end
     end
 
     describe :_standardize_date_definition_field do
@@ -168,6 +232,14 @@ describe ParsedField do
             out_field = test_parser.send(:_standardize_date_definition_field, '(yr.)')
 
             expect(out_field).to eq('year')
+        end
+
+        it 'should return unknown if an empty set of parens is provided' do
+            test_parser = ParsedField.new({}, {})
+
+            out_field = test_parser.send(:_standardize_date_definition_field, '()')
+
+            expect(out_field).to eq('unknown')
         end
 
         it 'should raise an error if the date field is not recognized' do
