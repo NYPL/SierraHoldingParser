@@ -40,6 +40,17 @@ describe ParsedField::DateComponent do
             expect(@test_comp.date_str).to eq('1999')
         end
 
+        it 'should return a single date string with the unknown value at the end if provided' do
+            @test_comp.instance_variable_set(:@start_year, '1999')
+            @test_comp.instance_variable_set(:@end_year, '1999')
+            @test_comp.instance_variable_set(:@start_unknown, '23')
+            @test_comp.instance_variable_set(:@end_unknown, '23')
+
+            @test_comp.create_str
+
+            expect(@test_comp.date_str).to eq('1999-23')
+        end
+
         it 'should return a date range if start and end are different' do
             @test_comp.instance_variable_set(:@start_year, '1999')
             @test_comp.instance_variable_set(:@end_year, '1999')
