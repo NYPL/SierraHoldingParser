@@ -4,8 +4,7 @@ rvm:
 before_install:
 - gem update --system
 - gem install bundler
-- gem install aws-sdk-lambda
-- gem install aws-sdk-cloudwatchevents
+- gem install nypl_ruby_util
 install:
 - rake run_bundler
 script:
