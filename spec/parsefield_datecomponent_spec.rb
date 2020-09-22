@@ -1,7 +1,6 @@
 require_relative '../lib/record_manager'
 require_relative './handler_spec'
 
-
 describe ParsedField::DateComponent do
     before(:each) {
         @test_comp = ParsedField::DateComponent.new
@@ -50,7 +49,6 @@ describe ParsedField::DateComponent do
             @test_comp.create_str
 
             expect(@test_comp.date_str).to eq('1999-02/1999-04')
-
         end
     end
 end

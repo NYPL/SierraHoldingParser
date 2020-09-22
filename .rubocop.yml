@@ -1,0 +1,204 @@
+AllCops:
+  NewCops: enable
+
+# I don't like having arguments aligned for methods. I find it means your eyes have to jump around a lot more.
+Layout/ArgumentAlignment:
+  EnforcedStyle: with_fixed_indentation
+  
+Layout/EmptyLinesAroundAttributeAccessor:
+  Enabled: True
+
+# As discussed with team in Slack
+Layout/DotPosition:
+  EnforcedStyle: leading
+
+# Nice to have a bit extra space before a trailing comment
+Layout/ExtraSpacing:
+  AllowBeforeTrailingComments: True
+
+Layout/FirstHashElementIndentation:
+  EnforcedStyle: consistent
+  
+Layout/IndentationWidth:
+  Width: 4
+
+Layout/LineLength:
+  Max: 120
+    
+Layout/MultilineMethodCallIndentation:
+  EnforcedStyle: indented
+
+Layout/SpaceAroundEqualsInParameterDefault:
+  Enabled: False
+
+Layout/SpaceAroundMethodCallOperator:
+  Enabled: True
+
+Lint/BinaryOperatorWithIdenticalOperands:
+  Enabled: True
+
+Lint/DeprecatedOpenSSLConstant:
+  Enabled: True
+
+Lint/DuplicateElsifCondition:
+  Enabled: True
+
+Lint/DuplicateRescueException:
+  Enabled: True
+
+Lint/EmptyConditionalBody:
+  Enabled: True
+
+Lint/FloatComparison:
+  Enabled: True
+
+Lint/MissingSuper:
+  Enabled: True
+
+Lint/MixedRegexpCaptureTypes:
+  Enabled: True
+
+Lint/OutOfRangeRegexpRef:
+  Enabled: True
+
+Lint/RaiseException:
+  Enabled: True
+
+Lint/SelfAssignment:
+  Enabled: True
+
+Lint/StructNewOverride:
+  Enabled: True
+
+Lint/TopLevelReturnWithArgument:
+  Enabled: True
+
+Lint/UnreachableLoop:
+  Enabled: True
+
+Metrics/AbcSize:
+  Enabled: False
+
+Metrics/BlockLength:
+  Exclude:
+    - 'spec/**/*'
+
+Metrics/ClassLength:
+  Enabled: true
+  Max: 350
+  Exclude:
+    - test/**/*
+
+
+Metrics/MethodLength:
+  Max: 60
+
+Style/AccessorGrouping:
+  Enabled: True
+
+Style/ArrayCoercion:
+  Enabled: False
+
+Style/BisectedAttrAccessor:
+  Enabled: True
+
+Style/BlockDelimiters:
+  Exclude:
+    - 'spec/**/*'
+
+Style/CaseLikeIf:
+  Enabled: False
+
+Style/ClassVars:
+  Enabled: False
+
+Style/EachWithObject:
+  Enabled: False
+
+Style/ExplicitBlockArgument:
+  Enabled: True
+
+Style/ExponentialNotation:
+  Enabled: True
+
+Style/FormatStringToken:
+  EnforcedStyle: template
+
+Style/FrozenStringLiteralComment:
+  Enabled: False
+
+Style/GlobalStdStream:
+  Enabled: True
+  
+Style/GlobalVars:
+  Enabled: False
+
+Style/HashAsLastArrayItem:
+  Enabled: True
+
+Style/HashEachMethods:
+  Enabled: False
+
+Style/HashLikeCase:
+  Enabled: True
+
+Style/HashTransformKeys:
+  Enabled: False
+
+Style/HashTransformValues:
+  Enabled: False
+
+Style/NumericPredicate:
+  Enabled: False
+
+Style/OptionalBooleanParameter:
+  Enabled: True
+
+Style/RedundantAssignment:
+  Enabled: True
+
+Style/RedundantFetchBlock:
+  Enabled: True
+
+Style/RedundantFileExtensionInRequire:
+  Enabled: True
+
+Style/RedundantRegexpCharacterClass:
+  Enabled: False
+
+Style/RedundantRegexpEscape:
+  Enabled: False
+
+Style/SingleArgumentDig:
+  Enabled: False
+
+Style/SlicingWithRange:
+  Enabled: False
+
+Style/StringConcatenation:
+  Enabled: True
+
+Style/ZeroLengthPredicate:
+  Enabled: False
+
+Style/MultilineTernaryOperator :
+  Enabled: False
+
+Style/RegexpLiteral:
+  Enabled: False
+
+Style/TrailingCommaInArrayLiteral:
+  Enabled: False
+
+Style/TrailingCommaInHashLiteral:
+  Enabled: False
+
+Style/UnlessElse:
+  Enabled: False
+
+# This one is too restrictive. E.g., 
+#     [['Mozart, Wolfgang Amadeus,', "a"], ["1756-1791", "d"]]
+#   reads better (and is easier to maintain, e.g., when making small changes) than
+#     [['Mozart, Wolfgang Amadeus,', "a"], %w[1756-1791 d]]
+Style/WordArray:
+  Enabled: false

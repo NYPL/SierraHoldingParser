@@ -1,8 +1,14 @@
+# Class for parsing and transforming holding records into strings that can be displayed in SCC
 class ParsedField
     attr_reader :string_rep
 
-    @@enumeration_codes = "abcdef"
-    @@chronology_codes = "ijkl"
+    @@enumeration_codes = 'abcdef'
+    @@chronology_codes = 'ijkl'
+    @@date_field_mappings = {
+        'day' => /\(?da(?:y|\.)?\)?/,
+        'month' => /\(?mo(?:n|nth)?\.?\)?/,
+        'year' => /\(?(?:yr|yea|ye)\.?\)?/
+    }
 
     def initialize(h_field, y_field)
         @h_field = h_field
@@ -14,23 +20,26 @@ class ParsedField
         enumeration = _generate_enumeration
         chronology = _generate_chronology
         @string_rep += enumeration.length > 0 ? enumeration : ''
-        if chronology.length > 0
-            chronology = enumeration.length > 0 ? " (#{chronology})" : chronology
-            @string_rep += chronology
-        end
+
+        return unless chronology.length > 0
+
+        chronology = enumeration.length > 0 ? " (#{chronology})" : chronology
+        @string_rep += chronology
     end
 
     private
 
     def _generate_enumeration
-        @@enumeration_codes.split('').map { |c| @h_field.include?(c) ? "#{@y_field[c]} #{@h_field[c]}" : nil }.compact.join(', ')
+        @@enumeration_codes.split('').map do |c|
+            @h_field.include?(c) && _empty_field_check(@h_field[c]) ? "#{@y_field[c]} #{@h_field[c]}" : nil
+        end.compact.join(', ')
     end
 
     def _generate_chronology
         date_component = DateComponent.new
-        components = @@chronology_codes.split('').map do |c|
-            if @h_field.include? c 
-                date_component.set_field(@y_field[c].tr('()', ''), @h_field[c])
+        @@chronology_codes.split('').map do |c|
+            if @h_field.include?(c) && _empty_field_check(@h_field[c])
+                date_component.set_field(_standardize_date_definition_field(@y_field[c]), @h_field[c])
             end
         end
 
@@ -39,6 +48,19 @@ class ParsedField
         date_component.date_str
     end
 
+    def _standardize_date_definition_field(field)
+        @@date_field_mappings.each do |full_name, field_test|
+            return full_name if field_test.match?(field)
+        end
+
+        raise FieldParserError, "Unable to identify field #{field} for chronology"
+    end
+
+    def _empty_field_check(field)
+        return true if field.strip.length > 0
+    end
+
+    # Parses date fields into a single ISO-8601 representation
     class DateComponent
         attr_reader :date_str
 
@@ -55,21 +77,19 @@ class ParsedField
             @date_str = ''
         end
 
-        def set_field(component, value) 
+        def set_field(component, value)
             value_arr = value.split('-')
-            self.instance_variable_set("@start_#{component}", value_arr[0])
-            self.instance_variable_set("@end_#{component}", value_arr[1] ? value_arr[1] : value_arr[0])
+            instance_variable_set("@start_#{component}", value_arr[0])
+            instance_variable_set("@end_#{component}", value_arr[1] || value_arr[0])
         end
 
         def create_str
             start_str = "#{@start_year}-#{@start_month}-#{@start_day}".gsub(@@dash_regex, '')
             end_str = "#{@end_year}-#{@end_month}-#{@end_day}".gsub(@@dash_regex, '')
 
-            if start_str == end_str
-                @date_str = start_str
-            else
-                @date_str = "#{start_str}/#{end_str}"
-            end
+            @date_str = start_str == end_str ? start_str : "#{start_str}/#{end_str}"
         end
     end
 end
+
+class FieldParserError < StandardError; end
