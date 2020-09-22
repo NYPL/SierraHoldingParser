@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## 0.0.2 - Unreleased
+## 0.0.2 - 2020-09-22
 ### Added
 - Added rubocop for linting and linted all files
 ### Fixed
