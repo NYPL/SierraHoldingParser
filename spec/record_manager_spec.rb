@@ -182,10 +182,10 @@ describe RecordManager do
         it 'should return an array of holdings objects for all strings passed to it' do
             out_arr = @test_manager.send(:_create_holding_obj, ['test1', 'test2'])
 
-            expect(out_arr[0][:holding_string]).to eq('test1')
-            expect(out_arr[1][:holding_string]).to eq('test2')
-            expect(out_arr[0][:index]).to eq(false)
-            expect(out_arr[1][:index]).to eq(false)
+            expect(out_arr[0]['holding_string']).to eq('test1')
+            expect(out_arr[1]['holding_string']).to eq('test2')
+            expect(out_arr[0]['index']).to eq(false)
+            expect(out_arr[1]['index']).to eq(false)
         end
     end
 
