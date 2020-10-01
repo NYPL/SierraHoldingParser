@@ -20,8 +20,8 @@ describe ParsedField do
         }
 
         it 'should add enumeration to the string_rep if present' do
-            @test_parser.stubs(:_generate_enumeration).once.returns('test enum')
-            @test_parser.stubs(:_generate_chronology).once.returns('')
+            @test_parser.stubs(:_generate_enumeration).once.returns(['test enum', nil])
+            @test_parser.stubs(:_generate_chronology).once.returns([nil, nil])
 
             @test_parser.generate_string_representation
 
@@ -29,8 +29,8 @@ describe ParsedField do
         end
 
         it 'should add enumeration and chronology (in parens) to the string_rep if both present' do
-            @test_parser.stubs(:_generate_enumeration).once.returns('test enum')
-            @test_parser.stubs(:_generate_chronology).once.returns('test chron')
+            @test_parser.stubs(:_generate_enumeration).once.returns(['test enum', nil])
+            @test_parser.stubs(:_generate_chronology).once.returns(['test chron', nil])
 
             @test_parser.generate_string_representation
 
@@ -38,8 +38,8 @@ describe ParsedField do
         end
 
         it 'should add chronology (sans parens) to the string_rep if no enumeration present' do
-            @test_parser.stubs(:_generate_enumeration).once.returns('')
-            @test_parser.stubs(:_generate_chronology).once.returns('test chron')
+            @test_parser.stubs(:_generate_enumeration).once.returns([nil, nil])
+            @test_parser.stubs(:_generate_chronology).once.returns(['test chron', nil])
 
             @test_parser.generate_string_representation
 
@@ -47,13 +47,49 @@ describe ParsedField do
         end
 
         it 'should add a hyphen to the end of the string if continuing is present' do
-            @test_parser.stubs(:_generate_enumeration).once.returns('test enum')
-            @test_parser.stubs(:_generate_chronology).once.returns('test chron')
+            @test_parser.stubs(:_generate_enumeration).once.returns(['test enum', nil])
+            @test_parser.stubs(:_generate_chronology).once.returns(['test chron', nil])
             @test_parser.instance_variable_set(:@continuing, true)
 
             @test_parser.generate_string_representation
 
             expect(@test_parser.string_rep).to eq('test enum (test chron)-')
+        end
+
+        it 'should create a hypher separated range for start and end enumerations' do
+            @test_parser.stubs(:_generate_enumeration).once.returns(['test enum1', 'test enum2'])
+            @test_parser.stubs(:_generate_chronology).once.returns([nil, nil])
+
+            @test_parser.generate_string_representation
+
+            expect(@test_parser.string_rep).to eq('test enum1 - test enum2')
+        end
+
+        it 'should create a hypher separated range for start and end chronologies' do
+            @test_parser.stubs(:_generate_enumeration).once.returns([nil, nil])
+            @test_parser.stubs(:_generate_chronology).once.returns(['chron1', 'chron2'])
+
+            @test_parser.generate_string_representation
+
+            expect(@test_parser.string_rep).to eq('chron1 - chron2')
+        end
+
+        it 'should create a hypher separated range for start and end chronologies and enumerations' do
+            @test_parser.stubs(:_generate_enumeration).once.returns(['enum1', 'enum2'])
+            @test_parser.stubs(:_generate_chronology).once.returns(['chron1', 'chron2'])
+
+            @test_parser.generate_string_representation
+
+            expect(@test_parser.string_rep).to eq('enum1 (chron1) - enum2 (chron2)')
+        end
+
+        it 'should create a hypher separated range for a single start chronology and start and end enumerations' do
+            @test_parser.stubs(:_generate_enumeration).once.returns(['enum1', 'enum2'])
+            @test_parser.stubs(:_generate_chronology).once.returns(['chron1', nil])
+
+            @test_parser.generate_string_representation
+
+            expect(@test_parser.string_rep).to eq('enum1 (chron1) - enum2 (chron1)')
         end
     end
 
@@ -66,7 +102,8 @@ describe ParsedField do
 
             out_str = test_parser.send(:_generate_enumeration)
 
-            expect(out_str).to eq('v. 1, iss. 3')
+            expect(out_str[0]).to eq('v. 1, iss. 3')
+            expect(out_str[1]).to eq(nil)
         end
 
         it 'should return an empty string if there are no enumeration subfields in the h record' do
@@ -74,7 +111,7 @@ describe ParsedField do
 
             out_str = test_parser.send(:_generate_enumeration)
 
-            expect(out_str).to eq('')
+            expect(out_str[0]).to eq(nil)
         end
 
         it 'should return an empty string if there are no subfields in the h record' do
@@ -82,7 +119,7 @@ describe ParsedField do
 
             out_str = test_parser.send(:_generate_enumeration)
 
-            expect(out_str).to eq('')
+            expect(out_str[0]).to eq(nil)
         end
 
         it 'should remove any subfields if the h record is an empty string' do
@@ -93,7 +130,7 @@ describe ParsedField do
 
             out_str = test_parser.send(:_generate_enumeration)
 
-            expect(out_str).to eq('v. 1, i. 3')
+            expect(out_str[0]).to eq('v. 1, i. 3')
         end
 
         it 'should combine values with colons if no field names are provided' do
@@ -104,7 +141,7 @@ describe ParsedField do
 
             out_str = test_parser.send(:_generate_enumeration)
 
-            expect(out_str).to eq('1:3')
+            expect(out_str[0]).to eq('1:3')
         end
 
         it 'should combine values with colons and commas if values are mixed' do
@@ -115,7 +152,7 @@ describe ParsedField do
 
             out_str = test_parser.send(:_generate_enumeration)
 
-            expect(out_str).to eq('ser. 1, vol. 2:3')
+            expect(out_str[0]).to eq('ser. 1, vol. 2:3')
         end
 
         it 'should set continuing if a hyphen is present in a value' do
@@ -126,8 +163,31 @@ describe ParsedField do
 
             out_str = test_parser.send(:_generate_enumeration)
 
-            expect(out_str).to eq('ser. 1, vol. 2:3')
+            expect(out_str[0]).to eq('ser. 1, vol. 2:3')
+            expect(out_str[1]).to eq(nil)
             expect(test_parser.instance_variable_get(:@continuing)).to eq(true)
+        end
+
+        it 'should create a range of values if for hyphen separated fields' do
+            test_parser = ParsedField.new(
+                { 'a' => '1-3' }, { 'a' => 'no.' }
+            )
+
+            out_str = test_parser.send(:_generate_enumeration)
+
+            expect(out_str[0]).to eq('no. 1')
+            expect(out_str[1]).to eq('no. 3')
+        end
+
+        it 'should create a range of combined values for multiple hyphen separeted fields' do
+            test_parser = ParsedField.new(
+                { 'a' => '1-3', 'b' => '20-40' }, { 'a' => 'vol.', 'b' => '' }
+            )
+
+            out_str = test_parser.send(:_generate_enumeration)
+
+            expect(out_str[0]).to eq('vol. 1:20')
+            expect(out_str[1]).to eq('vol. 3:40')
         end
     end
 
