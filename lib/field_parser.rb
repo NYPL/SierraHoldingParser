@@ -89,8 +89,6 @@ class ParsedField
         end
 
         date_component.create_str
-
-        date_component.date_str
     end
 
     def _standardize_date_definition_field(field)
