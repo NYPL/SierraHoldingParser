@@ -5,8 +5,25 @@ require_relative './field_parser'
 # - Fetching location labels
 # - Parsing holding objects
 class RecordManager
+    @@default_y_fields = {
+        'a' => '',
+        'b' => '',
+        'c' => '',
+        'd' => '',
+        'e' => '',
+        'f' => '',
+        'i' => 'year',
+        'j' => 'month',
+        'k' => 'day',
+        'l' => ''
+    }
+
     def initialize(record)
         @record = record
+    end
+
+    def self.default_y_fields
+        @@default_y_fields
     end
 
     def parse_record
@@ -99,7 +116,7 @@ class RecordManager
     end
 
     def _parse_853_863_fields(y_fields, h_fields)
-        y_map = _transform_field_array_to_hash y_fields
+        y_map = y_fields ? _transform_field_array_to_hash(y_fields) : { '1' => @@default_y_fields }
         h_map = _transform_field_array_to_hash h_fields
 
         h_y_crosswalk = y_map.keys.map { |k| [k, []] }.to_h
