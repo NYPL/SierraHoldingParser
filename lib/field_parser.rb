@@ -17,51 +17,73 @@ class ParsedField
         @continuing = false
     end
 
+    # rubocop:disable Metrics/CyclomaticComplexity,Metrics/PerceivedComplexity
     def generate_string_representation
-        enumeration = _generate_enumeration
-        chronology = _generate_chronology
-        @string_rep += enumeration.length > 0 ? enumeration : ''
+        start_enumeration, end_enumeration = _generate_enumeration
+        start_chronology, end_chronology = _generate_chronology
 
-        if chronology.length > 0
-            chronology = enumeration.length > 0 ? " (#{chronology})" : chronology
-            @string_rep += chronology
+        string_els = [start_enumeration, start_chronology, end_enumeration, end_chronology]
+
+        string_els[1] = " (#{start_chronology})" if start_chronology && start_enumeration
+
+        if end_chronology && end_enumeration
+            string_els[3] = " (#{end_chronology})"
+        elsif end_enumeration && start_chronology
+            string_els[3] = " (#{start_chronology})"
         end
 
-        if @continuing
-            @string_rep += '-'
-        end
+        string_els.insert(2, ' - ') if end_enumeration || end_chronology
 
-        @string_rep
+        string_els << '-' if @continuing
+
+        @string_rep = string_els.compact.join('')
     end
+    # rubocop:enable Metrics/CyclomaticComplexity,Metrics/PerceivedComplexity
 
     private
 
     def _generate_enumeration
-        enumeration_elements = []
+        start_enumeration_els = []
+        end_enumeration_els = []
         @@enumeration_codes.split('').each do |c|
             next unless @h_field.include?(c) && _empty_field_check(@h_field[c]) ? "#{@y_field[c]} #{@h_field[c]}" : nil
 
-            @continuing = true if @h_field[c][-1] == '-'
+            @continuing = true if @h_field[c].end_with?('-')
 
-            clean_h_field = @h_field[c].tr('-', '').strip
+            value_arr = @h_field[c].strip.split('-')
             clean_y_field = @y_field[c].tr('()', '').strip
-            if clean_y_field.length > 0
-                enumeration_elements << ', ' unless enumeration_elements.length == 0
-                enumeration_elements << "#{clean_y_field} #{clean_h_field}"
-            else
-                enumeration_elements << ':' unless enumeration_elements.length == 0
-                enumeration_elements << clean_h_field
-            end
+
+            _add_enumeration_component(start_enumeration_els, end_enumeration_els, value_arr, clean_y_field)
         end
 
-        enumeration_elements.join('')
+        [
+            _joined_string_or_nil(start_enumeration_els, delimiter: ''),
+            _joined_string_or_nil(end_enumeration_els, delimiter: '')
+        ]
+    end
+
+    def _add_enumeration_component(start_els, end_els, h_values, y_field)
+        explicit_y_field = y_field.length > 0
+        enum_delimiter = explicit_y_field ? ', ' : ':'
+
+        start_els << enum_delimiter unless start_els.length == 0
+        start_els << (explicit_y_field ? "#{y_field} #{h_values[0]}" : h_values[0])
+
+        return unless h_values[1]
+
+        end_els << enum_delimiter unless end_els.length == 0
+        end_els << (explicit_y_field ? "#{y_field} #{h_values[1]}" : h_values[1])
+    end
+
+    def _joined_string_or_nil(arr, delimiter: ',')
+        arr.length > 0 ? arr.join(delimiter) : nil
     end
 
     def _generate_chronology
         date_component = DateComponent.new
         @@chronology_codes.split('').map do |c|
             if @h_field.include?(c) && _empty_field_check(@h_field[c])
-                @continuing = true if @h_field[c][-1] == '-'
+                @continuing = true if @h_field[c].end_with?('-')
                 date_component.set_field(_standardize_date_definition_field(@y_field[c]), @h_field[c])
             end
         end
@@ -87,8 +109,6 @@ class ParsedField
 
     # Parses date fields into a single ISO-8601 representation
     class DateComponent
-        attr_reader :date_str
-
         @@dash_regex = /(?:[\-]{2}|[\-]$)/
 
         def initialize
@@ -100,8 +120,6 @@ class ParsedField
             @end_day = nil
             @start_unknown = nil
             @end_unknown = nil
-
-            @date_str = ''
         end
 
         def set_field(component, value)
@@ -114,7 +132,10 @@ class ParsedField
             start_str = "#{@start_year}-#{@start_month}-#{@start_day}-#{@start_unknown}".gsub(@@dash_regex, '')
             end_str = "#{@end_year}-#{@end_month}-#{@end_day}-#{@end_unknown}".gsub(@@dash_regex, '')
 
-            @date_str = start_str == end_str ? start_str : "#{start_str}/#{end_str}"
+            [
+                start_str.length > 0 ? start_str : nil,
+                end_str.length > 0 && end_str != start_str ? end_str : nil
+            ]
         end
     end
 end

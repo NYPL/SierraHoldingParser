@@ -8,7 +8,6 @@ describe ParsedField::DateComponent do
 
     describe :initialize do
         it 'should initialize instance variables to nil' do
-            expect(@test_comp.date_str).to eq('')
             expect(@test_comp.instance_variable_get(:@start_year)).to eq(nil)
             expect(@test_comp.instance_variable_get(:@end_day)).to eq(nil)
         end
@@ -31,13 +30,15 @@ describe ParsedField::DateComponent do
     end
 
     describe :create_str do
+        it 'should nil values if no date values are provided' do
+            expect(@test_comp.create_str).to eq([nil, nil])
+        end
+
         it 'should return a single date string if start and end are identical' do
             @test_comp.instance_variable_set(:@start_year, '1999')
             @test_comp.instance_variable_set(:@end_year, '1999')
 
-            @test_comp.create_str
-
-            expect(@test_comp.date_str).to eq('1999')
+            expect(@test_comp.create_str).to eq(['1999', nil])
         end
 
         it 'should return a single date string with the unknown value at the end if provided' do
@@ -46,9 +47,7 @@ describe ParsedField::DateComponent do
             @test_comp.instance_variable_set(:@start_unknown, '23')
             @test_comp.instance_variable_set(:@end_unknown, '23')
 
-            @test_comp.create_str
-
-            expect(@test_comp.date_str).to eq('1999-23')
+            expect(@test_comp.create_str).to eq(['1999-23', nil])
         end
 
         it 'should return a date range if start and end are different' do
@@ -57,9 +56,7 @@ describe ParsedField::DateComponent do
             @test_comp.instance_variable_set(:@start_month, '02')
             @test_comp.instance_variable_set(:@end_month, '04')
 
-            @test_comp.create_str
-
-            expect(@test_comp.date_str).to eq('1999-02/1999-04')
+            expect(@test_comp.create_str).to eq(['1999-02', '1999-04'])
         end
     end
 end
