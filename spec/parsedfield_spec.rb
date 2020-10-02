@@ -202,8 +202,7 @@ describe ParsedField do
             ParsedField::DateComponent.stubs(:new).once.returns(mock_date_comp)
             mock_date_comp.stubs(:set_field).once.with('year', '1999')
             mock_date_comp.stubs(:set_field).once.with('month', 'Mar')
-            mock_date_comp.stubs(:create_str).once
-            mock_date_comp.stubs(:date_str).once.returns('1999-Mar')
+            mock_date_comp.stubs(:create_str).once.returns('1999-Mar')
 
             out_str = test_parser.send(:_generate_chronology)
 
@@ -219,8 +218,7 @@ describe ParsedField do
             mock_date_comp = mock
             ParsedField::DateComponent.stubs(:new).once.returns(mock_date_comp)
             mock_date_comp.stubs(:set_field).never
-            mock_date_comp.stubs(:create_str).once
-            mock_date_comp.stubs(:date_str).once.returns('')
+            mock_date_comp.stubs(:create_str).once.returns('')
 
             out_str = test_parser.send(:_generate_chronology)
 
@@ -237,8 +235,7 @@ describe ParsedField do
             ParsedField::DateComponent.stubs(:new).once.returns(mock_date_comp)
             mock_date_comp.stubs(:set_field).once.with('year', '1999')
             mock_date_comp.stubs(:set_field).never
-            mock_date_comp.stubs(:create_str).once
-            mock_date_comp.stubs(:date_str).once.returns('1999')
+            mock_date_comp.stubs(:create_str).once.returns('1999')
 
             out_str = test_parser.send(:_generate_chronology)
 
@@ -256,8 +253,7 @@ describe ParsedField do
             mock_date_comp.stubs(:set_field).once.with('year', '1999')
             mock_date_comp.stubs(:set_field).once.with('month', '09')
             mock_date_comp.stubs(:set_field).once.with('day', '09')
-            mock_date_comp.stubs(:create_str).once
-            mock_date_comp.stubs(:date_str).once.returns('1999-09-09')
+            mock_date_comp.stubs(:create_str).once.returns('1999-09-09')
 
             out_str = test_parser.send(:_generate_chronology)
 
@@ -275,8 +271,7 @@ describe ParsedField do
             mock_date_comp.stubs(:set_field).once.with('year', '1999')
             mock_date_comp.stubs(:set_field).once.with('unknown', '23-')
             mock_date_comp.stubs(:set_field).never
-            mock_date_comp.stubs(:create_str).once
-            mock_date_comp.stubs(:date_str).once.returns('1999-23')
+            mock_date_comp.stubs(:create_str).once.returns('1999-23')
 
             out_str = test_parser.send(:_generate_chronology)
 
