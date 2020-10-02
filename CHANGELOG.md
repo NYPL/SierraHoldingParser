@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 0.0.3 - 2020-10-01
+### Fixed
+- Cleaned up parsing of holding field (863/866) objects
+
 ## 0.0.2 - 2020-09-22
 ### Added
 - Added rubocop for linting and linted all files
