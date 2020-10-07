@@ -128,13 +128,14 @@ class RecordManager
 
         out_strings = []
         h_y_crosswalk.each do |k, v|
-            field_strings = v.map do |h|
+            out_strings << v.map do |h|
+                next if h.nil?
+
                 field_parser = ParsedField.new(h, y_map[k])
                 field_parser.generate_string_representation
 
                 field_parser.string_rep
-            end
-            out_strings << field_strings.join('; ')
+            end.compact.join('; ')
         end
 
         out_strings
