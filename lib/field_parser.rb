@@ -96,7 +96,7 @@ class ParsedField
             return full_name if field_test.match?(field)
         end
 
-        return 'unknown' if field == '()'
+        return nil if field == '()'
 
         raise FieldParserError, "Unable to identify field #{field} for chronology"
     end
@@ -108,6 +108,7 @@ class ParsedField
     # Parses date fields into a single ISO-8601 representation
     class DateComponent
         @@dash_regex = /(?:[\-]{2}|[\-]$)/
+        @@field_order = ['year', 'month', 'day', 'unknown']
 
         def initialize
             @start_year = nil
@@ -121,6 +122,8 @@ class ParsedField
         end
 
         def set_field(component, value)
+            component = _find_next_component if component.nil?
+            puts component
             value_arr = value.split('-')
             instance_variable_set("@start_#{component}", value_arr[0])
             instance_variable_set("@end_#{component}", value_arr[1] || value_arr[0])
@@ -134,6 +137,14 @@ class ParsedField
                 start_str.length > 0 ? start_str : nil,
                 end_str.length > 0 && end_str != start_str ? end_str : nil
             ]
+        end
+
+        private
+
+        def _find_next_component
+            @@field_order.each do |f|
+                return f if instance_variable_get("@start_#{f}").nil?
+            end
         end
     end
 end
