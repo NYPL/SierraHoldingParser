@@ -207,6 +207,43 @@ describe RecordManager do
 
             expect(out_arr).to eq(['test holding 3'])
         end
+
+        it 'should use default y/863 fields if no 863 object is present in holding record' do
+            y_fields = nil
+            h_fields = [TEST_VARFIELDS['varFields'][2]]
+
+            mock_parser = mock
+            ParsedField.stubs(:new).once.with(
+                { 'a' => 'test holding 3' },
+                RecordManager.default_y_fields 
+            ).returns(mock_parser)
+
+            mock_parser.stubs(:generate_string_representation).once
+            mock_parser.stubs(:string_rep).once.returns('test holding 3')
+
+            out_arr = @test_manager.send(:_parse_853_863_fields, y_fields, h_fields)
+
+            expect(out_arr).to eq(['test holding 3'])
+        end
+
+        it 'should skip nil values in h field mapping and not add them to crosswalk' do
+            y_fields = [TEST_VARFIELDS['varFields'][3]]
+            h_fields = [TEST_VARFIELDS['varFields'][2]]
+            h_fields[0]['subfields'][0]['content'] = '1.2'
+
+            mock_parser = mock
+            ParsedField.stubs(:new).once.with(
+                { 'a' => 'test holding 3' },
+                { 'a' => 'test field' }
+            ).returns(mock_parser)
+
+            mock_parser.stubs(:generate_string_representation).once
+            mock_parser.stubs(:string_rep).once.returns('test holding 3')
+
+            out_arr = @test_manager.send(:_parse_853_863_fields, y_fields, h_fields)
+
+            expect(out_arr).to eq(['test holding 3'])
+        end
     end
 
     describe :_transform_field_array_to_hash do
