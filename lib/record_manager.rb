@@ -116,7 +116,7 @@ class RecordManager
     end
 
     def _parse_853_863_fields(y_fields, h_fields)
-        y_map = y_fields ? _transform_field_array_to_hash(y_fields) : { '1' => @@default_y_fields }
+        y_map = y_fields.empty? ? { '1' => @@default_y_fields } : _transform_field_array_to_hash(y_fields)
         h_map = _transform_field_array_to_hash h_fields
 
         h_y_crosswalk = y_map.keys.map { |k| [k, []] }.to_h
