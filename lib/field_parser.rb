@@ -123,7 +123,6 @@ class ParsedField
 
         def set_field(component, value)
             component = _find_next_component if component.nil?
-            puts component
             value_arr = value.split('-')
             instance_variable_set("@start_#{component}", value_arr[0])
             instance_variable_set("@end_#{component}", value_arr[1] || value_arr[0])

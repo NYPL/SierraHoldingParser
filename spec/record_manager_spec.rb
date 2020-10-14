@@ -209,7 +209,7 @@ describe RecordManager do
         end
 
         it 'should use default y/863 fields if no 863 object is present in holding record' do
-            y_fields = nil
+            y_fields = {}
             h_fields = [TEST_VARFIELDS['varFields'][2]]
 
             mock_parser = mock
