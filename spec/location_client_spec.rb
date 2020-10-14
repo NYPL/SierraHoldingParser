@@ -55,10 +55,10 @@ describe LocationClient do
             expect(out_object['label']).to eq('test location')
         end
 
-        it 'should return an empty hash if the location code is none' do
+        it 'should return nil if the location code is none' do
             out_object = @test_client.lookup_code 'none '
 
-            expect(out_object).to eq({})
+            expect(out_object).to eq(nil)
         end
 
         it 'should raise an error if location code is not found' do

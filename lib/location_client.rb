@@ -9,7 +9,7 @@ class LocationClient
     end
 
     def lookup_code(code)
-        location = {}
+        location = nil
         unless code.strip == 'none'
             code_record = @locations[code.strip]
 
