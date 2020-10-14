@@ -38,7 +38,7 @@ class RecordManager
         $logger.debug 'Adding location object to record'
 
         location_object = $location_client.lookup_code @record['fixedFields']['40']['value']
-        $logger.debug 'Retrieved location object', location_object
+        $logger.debug 'Retrieved location object', location_object || { message: 'No location specified' }
 
         @record['location'] = location_object
     end
