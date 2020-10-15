@@ -5,8 +5,25 @@ require_relative './field_parser'
 # - Fetching location labels
 # - Parsing holding objects
 class RecordManager
+    @@default_y_fields = {
+        'a' => '',
+        'b' => '',
+        'c' => '',
+        'd' => '',
+        'e' => '',
+        'f' => '',
+        'i' => 'year',
+        'j' => 'month',
+        'k' => 'day',
+        'l' => ''
+    }
+
     def initialize(record)
         @record = record
+    end
+
+    def self.default_y_fields
+        @@default_y_fields
     end
 
     def parse_record
@@ -21,7 +38,7 @@ class RecordManager
         $logger.debug 'Adding location object to record'
 
         location_object = $location_client.lookup_code @record['fixedFields']['40']['value']
-        $logger.debug 'Retrieved location object', location_object
+        $logger.debug 'Retrieved location object', location_object || { message: 'No location specified' }
 
         @record['location'] = location_object
     end
@@ -99,7 +116,7 @@ class RecordManager
     end
 
     def _parse_853_863_fields(y_fields, h_fields)
-        y_map = _transform_field_array_to_hash y_fields
+        y_map = y_fields.empty? ? { '1' => @@default_y_fields } : _transform_field_array_to_hash(y_fields)
         h_map = _transform_field_array_to_hash h_fields
 
         h_y_crosswalk = y_map.keys.map { |k| [k, []] }.to_h
@@ -111,13 +128,14 @@ class RecordManager
 
         out_strings = []
         h_y_crosswalk.each do |k, v|
-            field_strings = v.map do |h|
+            out_strings << v.map do |h|
+                next if h.nil?
+
                 field_parser = ParsedField.new(h, y_map[k])
                 field_parser.generate_string_representation
 
                 field_parser.string_rep
-            end
-            out_strings << field_strings.join('; ')
+            end.compact.join('; ')
         end
 
         out_strings

@@ -27,6 +27,16 @@ describe ParsedField::DateComponent do
             expect(@test_comp.instance_variable_get(:@start_year)).to eq('1999')
             expect(@test_comp.instance_variable_get(:@end_year)).to eq('2000')
         end
+
+        it 'should set the value to the next nil field if no componenent is specified' do
+            @test_comp.instance_variable_set(:@start_year, '1999')
+            @test_comp.instance_variable_set(:@end_year, '1999')
+
+            @test_comp.set_field(nil, '12')
+
+            expect(@test_comp.instance_variable_get(:@start_month)).to eq('12')
+            expect(@test_comp.instance_variable_get(:@end_month)).to eq('12')
+        end
     end
 
     describe :create_str do

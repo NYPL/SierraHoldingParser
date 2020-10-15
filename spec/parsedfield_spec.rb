@@ -269,7 +269,7 @@ describe ParsedField do
             mock_date_comp = mock
             ParsedField::DateComponent.stubs(:new).once.returns(mock_date_comp)
             mock_date_comp.stubs(:set_field).once.with('year', '1999')
-            mock_date_comp.stubs(:set_field).once.with('unknown', '23-')
+            mock_date_comp.stubs(:set_field).once.with(nil, '23-')
             mock_date_comp.stubs(:set_field).never
             mock_date_comp.stubs(:create_str).once.returns('1999-23')
 
@@ -289,12 +289,12 @@ describe ParsedField do
             expect(out_field).to eq('year')
         end
 
-        it 'should return unknown if an empty set of parens is provided' do
+        it 'should return nil if an empty set of parens is provided' do
             test_parser = ParsedField.new({}, {})
 
             out_field = test_parser.send(:_standardize_date_definition_field, '()')
 
-            expect(out_field).to eq('unknown')
+            expect(out_field).to eq(nil)
         end
 
         it 'should raise an error if the date field is not recognized' do
@@ -303,6 +303,14 @@ describe ParsedField do
             expect {
                 test_parser.send(:_standardize_date_definition_field, '(smthg.)')
             }.to raise_error(FieldParserError, 'Unable to identify field (smthg.) for chronology')
+        end
+
+        it 'should handle cases where fields contain upper case characters' do
+            test_parser = ParsedField.new({}, {})
+
+            out_field = test_parser.send(:_standardize_date_definition_field, '(Season)')
+
+            expect(out_field).to eq('season')
         end
     end
 

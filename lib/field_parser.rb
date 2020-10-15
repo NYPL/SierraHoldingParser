@@ -6,8 +6,9 @@ class ParsedField
     @@chronology_codes = 'ijkl'
     @@date_field_mappings = {
         'day' => /(?<=(?:\(|^))d(?:ay|a|)(?=(?:\.|\)|$))/,
-        'month' => /(?<=(?:\(|^))m(?:onth|on|o|)(?=(?:\.|\)|$))/,
-        'year' => /(?<=(?:\(|^))y(?:ear|ea|r|e|)(?=(?:\.|\)|$))/
+        'month' => /(?<=(?:\(|^))m(?:onth|on|os|o|)(?=(?:\.|\)|$))/,
+        'year' => /(?<=(?:\(|^))y(?:ear|ea|r|e|)(?=(?:\.|\)|$))/,
+        'season' => /(?<=(?:\(|^))s(?:eason|eas|ea|e)(?=(?:\.|\)|$))/,
     }
 
     def initialize(h_field, y_field)
@@ -93,10 +94,10 @@ class ParsedField
 
     def _standardize_date_definition_field(field)
         @@date_field_mappings.each do |full_name, field_test|
-            return full_name if field_test.match?(field)
+            return full_name if field_test.match?(field.downcase)
         end
 
-        return 'unknown' if field == '()'
+        return nil if field == '()'
 
         raise FieldParserError, "Unable to identify field #{field} for chronology"
     end
@@ -107,7 +108,8 @@ class ParsedField
 
     # Parses date fields into a single ISO-8601 representation
     class DateComponent
-        @@dash_regex = /(?:[\-]{2}|[\-]$)/
+        @@dash_regex = /(?:[\-]{2,3}|[\-]$)/
+        @@field_order = ['year', 'month', 'day', 'season', 'unknown']
 
         def initialize
             @start_year = nil
@@ -116,24 +118,35 @@ class ParsedField
             @end_month = nil
             @start_day = nil
             @end_day = nil
+            @start_season = nil
+            @end_season = nil
             @start_unknown = nil
             @end_unknown = nil
         end
 
         def set_field(component, value)
+            component = _find_next_component if component.nil?
             value_arr = value.split('-')
             instance_variable_set("@start_#{component}", value_arr[0])
             instance_variable_set("@end_#{component}", value_arr[1] || value_arr[0])
         end
 
         def create_str
-            start_str = "#{@start_year}-#{@start_month}-#{@start_day}-#{@start_unknown}".gsub(@@dash_regex, '')
-            end_str = "#{@end_year}-#{@end_month}-#{@end_day}-#{@end_unknown}".gsub(@@dash_regex, '')
+            start_str = "#{@start_year}-#{@start_month}-#{@start_day}-#{@start_season}-#{@start_unknown}".gsub(@@dash_regex, '')
+            end_str = "#{@end_year}-#{@end_month}-#{@end_day}-#{@end_season}-#{@end_unknown}".gsub(@@dash_regex, '')
 
             [
                 start_str.length > 0 ? start_str : nil,
                 end_str.length > 0 && end_str != start_str ? end_str : nil
             ]
+        end
+
+        private
+
+        def _find_next_component
+            @@field_order.each do |f|
+                return f if instance_variable_get("@start_#{f}").nil?
+            end
         end
     end
 end
