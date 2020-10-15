@@ -33,7 +33,7 @@ deploy:
      IN_SCHEMA_TYPE: SierraHolding
      OUT_SCHEMA_TYPE: Holding
      KINESIS_STREAM: HoldingPostRequest-dev
-     LOCATIONS_JSONLD_URL: https://s3.amazonaws.com/nypl-core-objects-mapping-production/by_sierra_location.json
+     LOCATIONS_JSONLD_URL: https://s3.amazonaws.com/nypl-core-objects-mapping-qa/by_sierra_location.json
   access_key_id: "$AWS_ACCESS_KEY_ID_DEVELOPMENT"
   secret_access_key: "$AWS_SECRET_ACCESS_KEY_DEVELOPMENT"
   on:
@@ -61,7 +61,7 @@ deploy:
       IN_SCHEMA_TYPE: SierraHolding
       OUT_SCHEMA_TYPE: Holding
       KINESIS_STREAM: HoldingPostRequest-qa
-      LOCATIONS_JSONLD_URL: https://s3.amazonaws.com/nypl-core-objects-mapping-production/by_sierra_location.json
+      LOCATIONS_JSONLD_URL: https://s3.amazonaws.com/nypl-core-objects-mapping-qa/by_sierra_location.json
   access_key_id: "$AWS_ACCESS_KEY_ID_QA"
   secret_access_key: "$AWS_SECRET_ACCESS_KEY_QA"
   on:
