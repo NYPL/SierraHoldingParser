@@ -304,6 +304,14 @@ describe ParsedField do
                 test_parser.send(:_standardize_date_definition_field, '(smthg.)')
             }.to raise_error(FieldParserError, 'Unable to identify field (smthg.) for chronology')
         end
+
+        it 'should handle cases where fields contain upper case characters' do
+            test_parser = ParsedField.new({}, {})
+
+            out_field = test_parser.send(:_standardize_date_definition_field, '(Season)')
+
+            expect(out_field).to eq('season')
+        end
     end
 
     describe :_empty_field_check do
