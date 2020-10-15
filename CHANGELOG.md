@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## 0.0.4 - Unreleased
+## 0.0.4 - 2020-10-15
 ### Fixed
 - Use QA location codes in qa/dev environments
 - Better handling of date fields (including seasons and month abbreviations)
