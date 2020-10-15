@@ -6,7 +6,7 @@ class ParsedField
     @@chronology_codes = 'ijkl'
     @@date_field_mappings = {
         'day' => /(?<=(?:\(|^))d(?:ay|a|)(?=(?:\.|\)|$))/,
-        'month' => /(?<=(?:\(|^))m(?:onth|on|o|)(?=(?:\.|\)|$))/,
+        'month' => /(?<=(?:\(|^))m(?:onth|on|os|o|)(?=(?:\.|\)|$))/,
         'year' => /(?<=(?:\(|^))y(?:ear|ea|r|e|)(?=(?:\.|\)|$))/,
         'season' => /(?<=(?:\(|^))s(?:eason|eas|ea|e)(?=(?:\.|\)|$))/,
     }
@@ -94,7 +94,7 @@ class ParsedField
 
     def _standardize_date_definition_field(field)
         @@date_field_mappings.each do |full_name, field_test|
-            return full_name if field_test.match?(field)
+            return full_name if field_test.match?(field.downcase)
         end
 
         return nil if field == '()'
@@ -109,7 +109,7 @@ class ParsedField
     # Parses date fields into a single ISO-8601 representation
     class DateComponent
         @@dash_regex = /(?:[\-]{2,3}|[\-]$)/
-        @@field_order = ['year', 'month', 'day', 'season','unknown']
+        @@field_order = ['year', 'month', 'day', 'season', 'unknown']
 
         def initialize
             @start_year = nil
