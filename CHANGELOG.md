@@ -6,6 +6,7 @@
 - Better handling of date fields (including seasons and month abbreviations)
 - Fix bug in logger when no location is attached to record
 - Improve handling of missing 853 fields in records
+- Lowercase all field names for 853 chronologies
 
 ## 0.0.3 - 2020-10-01
 ### Fixed
