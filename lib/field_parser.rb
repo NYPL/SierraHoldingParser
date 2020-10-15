@@ -6,7 +6,7 @@ class ParsedField
     @@chronology_codes = 'ijkl'
     @@date_field_mappings = {
         'day' => /(?<=(?:\(|^))d(?:ay|a|)(?=(?:\.|\)|$))/,
-        'month' => /(?<=(?:\(|^))m(?:onth|on|o|)(?=(?:\.|\)|$))/,
+        'month' => /(?<=(?:\(|^))m(?:onth|on|os|o|)(?=(?:\.|\)|$))/,
         'year' => /(?<=(?:\(|^))y(?:ear|ea|r|e|)(?=(?:\.|\)|$))/,
         'season' => /(?<=(?:\(|^))s(?:eason|eas|ea|e)(?=(?:\.|\)|$))/,
     }
