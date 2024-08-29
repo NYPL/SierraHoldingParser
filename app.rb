@@ -36,7 +36,7 @@ def handle_event(event:, context:)
         end
 
         record_manager = RecordManager.new valid_record
-        record_manager.parse_record
+        record_manager.parse_record unless valid_record["deleted"]
 
         begin
             send_record_to_stream valid_record
