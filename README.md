@@ -42,4 +42,4 @@ To run the function locally it may be invoked with rake, where EVENT is the name
 
 ## Testing
 
-Testing is provided via `rspec` with `mocha` for stubbing/mocking. The test suite can be invoked with `rake test`
+Testing is provided via `rspec` with `mocha` for stubbing/mocking. The test suite can be invoked with `bundle exec rspec`
