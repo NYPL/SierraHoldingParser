@@ -16,6 +16,10 @@ def init
     })
     $location_client = LocationClient.new
 
+    # Fix bug in sam-cli AWS auth ( https://github.com/aws/aws-sam-cli/issues/3118 )
+    # that still seems to happen locally, despite claims it was fixed.
+    ENV.delete 'AWS_SESSION_TOKEN' if ENV['AWS_SESSION_TOKEN'] == ''
+
     $logger.debug 'Initialized function'
     $initialized = true
 end
@@ -36,7 +40,7 @@ def handle_event(event:, context:)
         end
 
         record_manager = RecordManager.new valid_record
-        record_manager.parse_record unless valid_record["deleted"]
+        record_manager.parse_record
 
         begin
             send_record_to_stream valid_record

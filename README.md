@@ -11,7 +11,7 @@ At the moment two enhancement steps will be taken:
 
 ## Requirements
 
-- ruby 2.7
+- ruby 3.3
 - AWS CLI
 
 ## Dependencies
@@ -22,7 +22,8 @@ At the moment two enhancement steps will be taken:
 
 ## Environment Variables
 
-- SCHEMA_TYPE: Avro schema to encode parser messages with
+- IN_SCHEMA_TYPE: Avro schema to encode incoming events
+- OUT_SCHEMA_TYPE: Avro schema to encode outgoing messages
 - KINESIS_STREAM: Destination stream for parsed messages
 - LOG_LEVEL: Standard logging level. Defaults to INFO
 - PLATFORM_API_BASE_URL: URL for the NYPL API, used to fetch Avro schema
@@ -32,13 +33,23 @@ At the moment two enhancement steps will be taken:
 
 This function is developed using the AWS SAM framework, [which has installation instructions here](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-install.html)
 
-To install the dependencies for this function, they must be bundled for this framework and should be done with `rake run_bundler`
+To install the dependencies for this function, they must be bundled for this framework:
+
+```
+rake run_bundler
+```
 
 ## Usage
 
-To run the function locally it may be invoked with rake, where EVENT is the name of the specific event in the `events` directory that you would like to invoke the function with:
+To run the function locally it may be invoked with rake, where EVENT is the name of the specific event in the `events` directory that you would like to invoke the function with, e.g.:
 
-`rake run_local[FUNCTION]`
+```
+rake 'run_local[./events/test-holding.json]'
+```
+
+Note that a sam-cli/Docker issue ( https://github.com/aws/aws-sam-cli/issues/3118 ) still appears to be breaking AWS auth when invoked via sam-cli due to sam-cli injecting an empty `AWS_SESSION_TOKEN` var into the container, confusing all AWS calls. This is patched in the short term by simply removing the var during `init` when it's found and empty. Because we only run `init` at startup, this should not impact deployed code.
+
+It's possible this issue may be resolved in a future update to [the sam-cli](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/install-sam-cli.html). As of at least 1.132.0, the bug appears to remain.
 
 ## Testing
 

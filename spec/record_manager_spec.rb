@@ -66,6 +66,12 @@ describe RecordManager do
 
             @test_manager.parse_record
         end
+
+        it 'should pass through deleted record' do
+            deleted_record = { 'deleted' => true }
+            deleted_record_inst = RecordManager.new(deleted_record)
+            deleted_record_inst.parse_record
+        end
     end
 
     describe :_parse_location do
