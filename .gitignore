@@ -1,3 +1,5 @@
 vendor/*
 .bundle/*
 *.code-workspace
+.terraform*
+build
