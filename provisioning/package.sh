@@ -3,8 +3,9 @@ rm -rf build
 # Build dependencies:
 gem update --system
 gem install bundler
+
 bundle config set deployment 'true'
-bundle install
+bundle install --without=test
 
 # Move required application files into build:
 mkdir build

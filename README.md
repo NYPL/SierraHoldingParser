@@ -40,7 +40,11 @@ It's possible this issue may be resolved in a future update to [the sam-cli](htt
 
 ## Testing
 
-Testing is provided via `rspec` with `mocha` for stubbing/mocking. The test suite can be invoked with `bundle exec rspec`
+Testing is provided via `rspec` with `mocha` for stubbing/mocking. The test suite can be invoked with:
+
+```
+bundle exec rspec
+```
 
 ## Contributing
 
