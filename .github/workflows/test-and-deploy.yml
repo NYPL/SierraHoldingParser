@@ -7,7 +7,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: ruby/setup-ruby@v1
       - name: Install dependencies
-        run: ./provisioning/package.sh
+        run: rake run_bundler
       - name: Run test suite
         run: |
           bundle exec rspec
