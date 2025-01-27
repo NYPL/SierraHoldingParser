@@ -1,5 +1,5 @@
 require_relative '../lib/field_parser'
-require_relative './handler_spec'
+require_relative './spec_helper'
 
 describe ParsedField do
     describe :initialize do
@@ -234,7 +234,6 @@ describe ParsedField do
             mock_date_comp = mock
             ParsedField::DateComponent.stubs(:new).once.returns(mock_date_comp)
             mock_date_comp.stubs(:set_field).once.with('year', '1999')
-            mock_date_comp.stubs(:set_field).never
             mock_date_comp.stubs(:create_str).once.returns('1999')
 
             out_str = test_parser.send(:_generate_chronology)
@@ -270,7 +269,6 @@ describe ParsedField do
             ParsedField::DateComponent.stubs(:new).once.returns(mock_date_comp)
             mock_date_comp.stubs(:set_field).once.with('year', '1999')
             mock_date_comp.stubs(:set_field).once.with(nil, '23-')
-            mock_date_comp.stubs(:set_field).never
             mock_date_comp.stubs(:create_str).once.returns('1999-23')
 
             out_str = test_parser.send(:_generate_chronology)

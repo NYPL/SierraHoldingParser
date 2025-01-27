@@ -1,5 +1,5 @@
 require_relative '../lib/record_manager'
-require_relative './handler_spec'
+require_relative './spec_helper'
 
 TEST_VARFIELDS = {
     'holdings' => [],
@@ -50,6 +50,8 @@ TEST_VARFIELDS = {
 
 describe RecordManager do
     before(:each) {
+        $location_client = mock
+
         @test_manager = RecordManager.new({ 'id' => 1 })
     }
 

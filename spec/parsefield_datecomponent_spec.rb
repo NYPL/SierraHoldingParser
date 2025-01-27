@@ -1,5 +1,5 @@
 require_relative '../lib/record_manager'
-require_relative './handler_spec'
+require_relative './spec_helper'
 
 describe ParsedField::DateComponent do
     before(:each) {
