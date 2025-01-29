@@ -14,6 +14,8 @@
 #
 # See http://rubydoc.info/gems/rspec-core/RSpec/Core/Configuration
 
+require 'nypl_ruby_util'
+
 ENV['RECORD_TYPE'] = 'testings'
 ENV['LOG_LEVEL'] = 'UNKNOWN'
 ENV['KINESIS_STREAM'] = 'test_stream'
@@ -45,3 +47,5 @@ RSpec.configure do |config|
     # triggering implicit auto-inclusion in groups with matching metadata.
     config.shared_context_metadata_behavior = :apply_to_host_groups
 end
+
+$logger = NYPLRubyUtil::NyplLogFormatter.new($stdout, level: ENV['LOG_LEVEL'])

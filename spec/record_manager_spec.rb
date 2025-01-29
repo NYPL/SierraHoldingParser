@@ -1,5 +1,5 @@
 require_relative '../lib/record_manager'
-require_relative './handler_spec'
+require_relative './spec_helper'
 
 TEST_VARFIELDS = {
     'holdings' => [],
@@ -50,6 +50,8 @@ TEST_VARFIELDS = {
 
 describe RecordManager do
     before(:each) {
+        $location_client = mock
+
         @test_manager = RecordManager.new({ 'id' => 1 })
     }
 
@@ -65,6 +67,12 @@ describe RecordManager do
             @test_manager.stubs(:_parse_holdings).once
 
             @test_manager.parse_record
+        end
+
+        it 'should pass through deleted record' do
+            deleted_record = { 'deleted' => true }
+            deleted_record_inst = RecordManager.new(deleted_record)
+            deleted_record_inst.parse_record
         end
     end
 

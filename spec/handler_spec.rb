@@ -82,10 +82,11 @@ describe 'handler' do
         }
 
         it 'should return a decoded record' do
-            @mock_avro.stubs(:decode).once.with('test record').returns('decoded record')
+            @mock_avro.stubs(:decode).once.with('fake-encoded-record-data')
+              .returns({ id: 'decoded record id...'})
 
-            result = validate_record({ 'kinesis' => { 'data' => 'test record' } })
-            expect(result).to eq('decoded record')
+            result = validate_record({ 'kinesis' => { 'data' => 'fake-encoded-record-data' } })
+            expect(result).to eq({ id: 'decoded record id...'})
         end
 
         it 'should raise an error if the record is missing the kinesis data object' do

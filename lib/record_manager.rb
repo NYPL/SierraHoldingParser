@@ -28,6 +28,13 @@ class RecordManager
 
     def parse_record
         $logger.info "Parsing record # #{@record['id']}"
+
+        # If record is deleted, don't modify it at all:
+        if @record['deleted']
+            $logger.debug 'Passing deleted record through as is'
+            return
+        end
+
         _parse_location
         _parse_holdings
     end
