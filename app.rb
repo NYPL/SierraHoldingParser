@@ -66,7 +66,7 @@ def validate_record(record)
 
     begin
         decoded = $in_avro_client.decode avro_data
-        $logger.debug 'Decoded bib', decoded
+        $logger.debug 'Decoded holding', decoded
     rescue AvroError => e
         $logger.error "Record failed Avro decoding for reason: #{e.message}"
         raise HoldingParserError, 'Incoming kinesis record failed Avro decoding'
