@@ -12,6 +12,7 @@ describe 'handler' do
             @avro_mock = mock
             NYPLRubyUtil::NYPLAvro.stubs(:by_name).returns(@avro_mock)
             @kinesis_mock = mock
+            @kinesis_mock.stubs(:push_records)
             NYPLRubyUtil::KinesisClient.stubs(:new).returns(@kinesis_mock)
             @locations_mock = mock
             LocationClient.stubs(:new).returns(@locations_mock)
@@ -45,6 +46,7 @@ describe 'handler' do
             stubs(:validate_record).once.with(3).returns(@records[2])
             @mock_manager.stubs(:parse_record).times(3)
             stubs(:send_record_to_stream).times(3)
+            stubs(:flush_records).once
 
             handle_event(event: { 'Records' => [1, 2, 3] }, context: {})
         end
@@ -57,6 +59,7 @@ describe 'handler' do
             @mock_manager.stubs(:parse_record).twice
             stubs(:send_record_to_stream).once.with(@records[0])
             stubs(:send_record_to_stream).once.with(@records[2])
+            stubs(:flush_records).once
 
             handle_event(event: { 'Records' => [1, 2, 3] }, context: {})
         end
@@ -70,6 +73,7 @@ describe 'handler' do
             stubs(:send_record_to_stream).once.raises(HoldingParserError.new)
             stubs(:send_record_to_stream).once.with(@records[1])
             stubs(:send_record_to_stream).once.with(@records[2])
+            stubs(:flush_records).once
 
             handle_event(event: { 'Records' => [1, 2, 3] }, context: {})
         end

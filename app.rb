@@ -53,7 +53,7 @@ def handle_event(event:, context:)
     end
 
     # Flush kinesis:
-    $kinesis_client.push_records
+    flush_records
 
     $logger.info 'Processing Complete'
 end
@@ -88,6 +88,10 @@ rescue AvroError => e
 rescue NYPLError => e
     $logger.warn "Record (id# #{record['id']} failed to write to kinesis", { status: e.message }
     raise HoldingParserError, 'Failed to send encoded record to Kinesis stream'
+end
+
+def flush_records
+    $kinesis_client.push_records
 end
 
 class HoldingParserError < StandardError; end
