@@ -27,13 +27,8 @@ class RecordManager
     end
 
     def parse_record
-        $logger.info "Parsing record # #{@record['id']}"
-
-        # If record is deleted, don't modify it at all:
-        if @record['deleted']
-            $logger.debug 'Passing deleted record through as is'
-            return
-        end
+        deleted_note = if @record['deleted'] then ' (note: deleted)' else '' end
+        $logger.info "Parsing record # #{@record['id']} #{deleted_note}"
 
         _parse_location
         _parse_holdings
@@ -44,6 +39,11 @@ class RecordManager
     def _parse_location
         $logger.debug 'Adding location object to record'
 
+        @record['location'] = nil
+
+        # If record is deleted, don't try to parse nonexistant location
+        return if @record['deleted']
+
         location_object = $location_client.lookup_code @record['fixedFields']['40']['value']
         $logger.debug 'Retrieved location object', location_object || { message: 'No location specified' }
 
@@ -53,6 +53,10 @@ class RecordManager
     def _parse_holdings
         $logger.debug 'Setting parsed holdings field'
         @record['holdings'] = []
+        @record['checkInCards'] = []
+
+        # If record is deleted, don't try to parse nonexistant holdings:
+        return if @record['deleted']
 
         # Extract all holdings strings into the holdings field
         _get_h_fields
