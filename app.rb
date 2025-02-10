@@ -12,7 +12,8 @@ def init
     $kinesis_client = NYPLRubyUtil::KinesisClient.new({
         schema_string: ENV['OUT_SCHEMA_TYPE'],
         stream_name: ENV['KINESIS_STREAM'],
-        partition_key: 'id'
+        partition_key: 'id',
+        batch_size: 10
     })
     $location_client = LocationClient.new
 
