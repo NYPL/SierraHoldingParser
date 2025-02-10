@@ -52,6 +52,9 @@ def handle_event(event:, context:)
         $logger.debug "Processed and sent record # #{valid_record['id']} to kinesis"
     end
 
+    # Flush kinesis:
+    $kinesis_client.push_records
+
     $logger.info 'Processing Complete'
 end
 # rubocop:enable Lint/UnusedMethodArgument
