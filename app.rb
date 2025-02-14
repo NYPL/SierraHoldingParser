@@ -52,6 +52,9 @@ def handle_event(event:, context:)
         $logger.debug "Processed and sent record # #{valid_record['id']} to kinesis"
     end
 
+    # Flush kinesis:
+    flush_records
+
     $logger.info 'Processing Complete'
 end
 # rubocop:enable Lint/UnusedMethodArgument
@@ -85,6 +88,10 @@ rescue AvroError => e
 rescue NYPLError => e
     $logger.warn "Record (id# #{record['id']} failed to write to kinesis", { status: e.message }
     raise HoldingParserError, 'Failed to send encoded record to Kinesis stream'
+end
+
+def flush_records
+    $kinesis_client.push_records
 end
 
 class HoldingParserError < StandardError; end
