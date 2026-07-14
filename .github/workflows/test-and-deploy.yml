@@ -14,6 +14,8 @@ jobs:
       - name: Run test suite
         run: |
           bundle exec rspec
+    permissions:
+      contents: read
   deploy-qa:
     permissions:
       id-token: write
