@@ -28,7 +28,7 @@ GEM
     base64 (0.3.0)
     diff-lcs (1.5.1)
     jmespath (1.6.2)
-    json (2.9.1)
+    json (2.19.9)
     language_server-protocol (3.17.0.3)
     mocha (2.7.1)
       ruby2_keywords (>= 0.0.5)
